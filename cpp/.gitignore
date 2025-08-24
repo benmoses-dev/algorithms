@@ -1,0 +1,62 @@
+# ---------------------------
+# Build directories & CMake
+# ---------------------------
+# Any build directories named 'build'
+build/
+**/build/
+
+# CMake artifacts
+CMakeFiles/
+**/CMakeFiles/
+CMakeCache.txt
+**/CMakeCache.txt
+cmake_install.cmake
+**/cmake_install.cmake
+Makefile
+**/Makefile
+*.dir/
+**/*.dir/
+.cache/
+**/.cache/
+
+# Generated compile commands (optional, usually LSP only)
+compile_commands.json
+**/compile_commands.json
+
+# Executables / binaries
+*.exe
+*.out
+*.app
+bin/
+**/bin/
+lib/
+**/lib/
+
+# ---------------------------
+# OS-specific files
+# ---------------------------
+# macOS
+.DS_Store
+**/.DS_Store
+
+# Linux / temp files
+*~
+**/*~
+
+# ---------------------------
+# Editor / IDE files
+# ---------------------------
+# VS Code
+.vscode/
+**/.vscode/
+
+# JetBrains (CLion, IntelliJ)
+.idea/
+**/.idea/
+
+# Vim / Neovim swap / backup
+*.swp
+*.swo
+**/*.swp
+**/*.swo
+

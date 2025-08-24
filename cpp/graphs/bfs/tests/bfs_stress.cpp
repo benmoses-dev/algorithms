@@ -1,4 +1,4 @@
-#include "graphs/bfs.hpp"
+#include "bfs.hpp"
 #include <chrono>
 #include <iostream>
 
@@ -30,6 +30,7 @@ int main() {
                  "chance to Ctrl+C"
               << std::endl;
     std::this_thread::sleep_for(std::chrono::seconds(10));
+    std::cout << "Starting now..." << std::endl;
 
     // Separate scopes to reset memory usage
     {

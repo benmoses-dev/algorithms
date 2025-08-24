@@ -1,4 +1,4 @@
-#include "graphs/bfs.hpp"
+#include "bfs.hpp"
 #include <iostream>
 
 int main() {
