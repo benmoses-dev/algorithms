@@ -1,10 +1,8 @@
-#include "bfs.hpp"
+#include "threads.hpp"
 #include <iostream>
 
 int main() {
     using namespace algo::bfs;
-
-    std::optional<size_t> mt;
 
     vvi adj = {
         {1, 2},    // Node 0 connects to 1, 2
@@ -16,7 +14,7 @@ int main() {
     vi starts = {0, 4};
 
     std::cout << "multiBFS results:" << std::endl;
-    vvi bfsResults = multiBFS(adj, starts, mt);
+    vvi bfsResults = multiBFS(adj, starts);
     for (size_t i = 0; i < bfsResults.size(); ++i) {
         std::cout << "From start " << starts[i] << ": ";
         for (int d : bfsResults[i])
@@ -33,7 +31,7 @@ int main() {
     vpii gridStarts = {{0, 0}, {2, 2}};
 
     std::cout << std::endl << "multiGridBFS results:" << std::endl;
-    vvvi gridResults = multiGridBFS(grid, gridStarts, mt);
+    vvvi gridResults = multiGridBFS(grid, gridStarts);
     for (size_t i = 0; i < gridResults.size(); ++i) {
         std::cout << "From start (" << gridStarts[i].first << ", " << gridStarts[i].second
                   << "):" << std::endl;

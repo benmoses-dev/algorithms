@@ -1,4 +1,4 @@
-#include "bfs.hpp"
+#include "threads.hpp"
 #include <chrono>
 #include <iostream>
 
@@ -20,11 +20,12 @@ int main() {
         }
     }
 
-    if (maxThreads) {
-        std::cout << "Using max threads = " << *maxThreads << std::endl;
-    } else {
+    if (!maxThreads) {
         std::cout << "Using hardware concurrency to determine thread count" << std::endl;
+        maxThreads = std::thread::hardware_concurrency();
     }
+
+    std::cout << "Using max threads = " << *maxThreads << std::endl;
 
     std::cout << "Memory usage is roughly 4GB. Waiting for 10 seconds to give you a "
                  "chance to Ctrl+C"
