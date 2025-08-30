@@ -23,10 +23,10 @@ struct ThreadJoiner {
  * Each start point runs BFS independently in a separate thread.
  */
 template <typename V>
-inline vvi threadWrapper(const vvi &adj, const V &starts,
+inline vvll threadWrapper(const vvi &adj, const V &starts,
                          std::optional<size_t> maxThreads = std::nullopt) {
     const size_t n = starts.size();
-    vvi results(n);
+    vvll results(n);
 
     const size_t max_threads =
         maxThreads ? std::max((size_t)1, *maxThreads)
@@ -71,11 +71,11 @@ inline vvi threadWrapper(const vvi &adj, const V &starts,
 /**
  * Wrappers to avoid template params.
  */
-inline vvi multiBFS(const vvi &adj, const vi &starts,
+inline vvll multiBFS(const vvi &adj, const vi &starts,
                     std::optional<size_t> maxThreads = std::nullopt) {
     return threadWrapper<vi>(adj, starts, maxThreads);
 }
-inline vvi multiGridBFS(const vvi &grid, const vpii &starts,
+inline vvll multiGridBFS(const vvi &grid, const vpii &starts,
                         std::optional<size_t> maxThreads = std::nullopt) {
     return threadWrapper<vpii>(grid, starts, maxThreads);
 }

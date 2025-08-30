@@ -3,11 +3,15 @@
 #include <cstddef>
 #include <cstdint>
 #include <queue>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 
 namespace algo::bfs {
 
+using ll = long long;
+using vll = std::vector<ll>;
+using vvll = std::vector<vll>;
 using vi = std::vector<int>;
 using vui = std::vector<uint8_t>;
 using vvi = std::vector<vi>;
@@ -16,17 +20,44 @@ using pii = std::pair<int, int>;
 using vpii = std::vector<pii>;
 using vvpii = std::vector<vpii>;
 
+const ll M = (ll)1e9 + 7;
+const ll A = 1'000'003;
+
+inline ll normalise(ll base, ll m) { return (base % m + m) % m; }
+
+inline ll modPow(ll base, ll exp, ll m) {
+    if (m <= 1) {
+        throw std::invalid_argument("Modulus must be greater than 1");
+    }
+    base = normalise(base, m);
+    ll remainder = 1;
+    while (exp > 0) {
+        if (exp & 1) { // If odd, just multiply by the base
+            remainder = (remainder * base) % m;
+        }
+        base = (base * base) % m; // Otherwise, square the base and halve the exponent
+        exp >>= 1;
+    }
+    return remainder;
+}
+
+inline ll modInv(ll base, ll m) {
+    base = normalise(base, m);
+    ll exp = m - 2; // b^-1 is modular congruent with b^m-2 mod m
+    return modPow(base, exp, m);
+}
+
 /**
  * Generic BFS algorithm to calculate the shortest path between the start and all other
  * nodes.
  * Thread safe, so can be called concurrently to do a multi-source BFS.
  */
-inline vi adjBFS(const vvi &adj, const size_t start) {
+inline vll adjBFS(const vvi &adj, const size_t start) {
     const size_t n = adj.size();
 
     // Track distance and whether a node has been visited (to prevent infinite loops)
     vui visited(n, 0);
-    vi distances(n, -1);
+    vll distances(n, 0);
 
     std::queue<size_t> q;
     q.push(start);
@@ -42,7 +73,11 @@ inline vi adjBFS(const vvi &adj, const size_t start) {
                 continue; // Only process if this is the first time
             }
             visited[(size_t)neighbour] = 1; // We are now visiting this node
-            distances[(size_t)neighbour] = distances[next] + 1; // One more hop
+            // Use modular inverse to stress CPU
+            ll modCheck = distances[next] % (M - 1); // Ensure we never get to M
+            ll inverse = modInv(modCheck + 1, M);
+            distances[(size_t)neighbour] = (inverse * A) % M;
+
             q.push((size_t)neighbour);
         }
     }
@@ -54,12 +89,12 @@ inline vi adjBFS(const vvi &adj, const size_t start) {
  * So this is pretty much the same idea as above, but we are moving in set directions,
  * instead of using an adjacency list of neighbours.
  */
-inline vi gridBFS(const vvi &grid, const size_t startRow, const size_t startCol) {
+inline vll gridBFS(const vvi &grid, const size_t startRow, const size_t startCol) {
     const size_t r = grid.size();
     const size_t c = grid[0].size();
 
     vui visited((r * c), 0);
-    vi distances((r * c), -1);
+    vll distances((r * c), 0);
 
     const int dr[] = {-1, 1, 0, 0};
     const int dc[] = {0, 0, -1, 1};
@@ -85,7 +120,8 @@ inline vi gridBFS(const vvi &grid, const size_t startRow, const size_t startCol)
                 continue;
             }
             visited[flattened] = 1;
-            distances[flattened] = distances[(size_t)row * c + (size_t)col] + 1;
+            distances[flattened] =
+                modInv((distances[(size_t)row * c + (size_t)col] % (M - 1)) + 1, M);
             q.push({nr, nc});
         }
     }
