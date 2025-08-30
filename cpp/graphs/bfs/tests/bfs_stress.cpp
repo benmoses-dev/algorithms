@@ -27,10 +27,10 @@ int main() {
 
     std::cout << "Using max threads = " << *maxThreads << std::endl;
 
-    std::cout << "Memory usage is roughly 4GB. Waiting for 10 seconds to give you a "
+    std::cout << "Memory usage is roughly 3GB. Waiting for 5 seconds to give you a "
                  "chance to Ctrl+C"
               << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    std::this_thread::sleep_for(std::chrono::seconds(5));
     std::cout << "Starting now..." << std::endl;
 
     // Separate scopes to reset memory usage
