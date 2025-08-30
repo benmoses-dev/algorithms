@@ -120,8 +120,9 @@ inline vll gridBFS(const vvi &grid, const size_t startRow, const size_t startCol
                 continue;
             }
             visited[flattened] = 1;
-            distances[flattened] =
-                modInv((distances[(size_t)row * c + (size_t)col] % (M - 1)) + 1, M);
+            ll modCheck = distances[(size_t)row * c + (size_t)col] % (M - 1);
+            ll inverse = modInv(modCheck + 1, M);
+            distances[flattened] = (inverse * A) % M;
             q.push({nr, nc});
         }
     }
