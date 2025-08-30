@@ -1,4 +1,7 @@
 # Reference benchmarks - i7-12700H 32GB DDR4
+## Code Optimisations:
+1. Flattened vector<int> distances
+2. vector<bool> visited
 
 ## Configuration
 -O3 compiler optimisations, LTO, -march=native

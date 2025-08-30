@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>
+#include <cstdint>
 #include <queue>
 #include <utility>
 #include <vector>
@@ -8,7 +9,7 @@
 namespace algo::bfs {
 
 using vi = std::vector<int>;
-using vb = std::vector<bool>;
+using vui = std::vector<uint8_t>;
 using vvi = std::vector<vi>;
 using vvvi = std::vector<vvi>;
 using pii = std::pair<int, int>;
@@ -24,23 +25,23 @@ inline vi adjBFS(const vvi &adj, const size_t start) {
     const size_t n = adj.size();
 
     // Track distance and whether a node has been visited (to prevent infinite loops)
-    vb visited(n, false);
+    vui visited(n, 0);
     vi distances(n, -1);
 
     std::queue<size_t> q;
     q.push(start);
-    visited[start] = true; // Visit the start
-    distances[start] = 0;  // Back to itself = 0
+    visited[start] = 1;   // Visit the start
+    distances[start] = 0; // Back to itself = 0
 
     while (!q.empty()) {
         const size_t next = q.front();
         q.pop();
 
         for (const int &neighbour : adj[next]) {
-            if (visited[(size_t)neighbour] == true) {
+            if (visited[(size_t)neighbour] == 1) {
                 continue; // Only process if this is the first time
             }
-            visited[(size_t)neighbour] = true; // We are now visiting this node
+            visited[(size_t)neighbour] = 1; // We are now visiting this node
             distances[(size_t)neighbour] = distances[next] + 1; // One more hop
             q.push((size_t)neighbour);
         }
@@ -57,7 +58,7 @@ inline vi gridBFS(const vvi &grid, const size_t startRow, const size_t startCol)
     const size_t r = grid.size();
     const size_t c = grid[0].size();
 
-    vb visited((r * c), false);
+    vui visited((r * c), 0);
     vi distances((r * c), -1);
 
     const int dr[] = {-1, 1, 0, 0};
@@ -65,7 +66,7 @@ inline vi gridBFS(const vvi &grid, const size_t startRow, const size_t startCol)
 
     std::queue<pii> q;
     q.push({startRow, startCol});
-    visited[startRow * c + startCol] = true;
+    visited[startRow * c + startCol] = 1;
     distances[startRow * c + startCol] = 0;
 
     while (!q.empty()) {
@@ -80,11 +81,12 @@ inline vi gridBFS(const vvi &grid, const size_t startRow, const size_t startCol)
                 continue;
             size_t flattened = (size_t)nr * c + (size_t)nc;
             // Flatten the vector to improve cache locality
-            if (visited[flattened] == false) {
-                visited[flattened] = true;
-                distances[flattened] = distances[(size_t)row * c + (size_t)col] + 1;
-                q.push({nr, nc});
+            if (visited[flattened] == 1) {
+                continue;
             }
+            visited[flattened] = 1;
+            distances[flattened] = distances[(size_t)row * c + (size_t)col] + 1;
+            q.push({nr, nc});
         }
     }
 
