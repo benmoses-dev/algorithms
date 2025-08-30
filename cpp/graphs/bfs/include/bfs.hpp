@@ -15,42 +15,31 @@ using vpii = std::vector<pii>;
 using vvpii = std::vector<vpii>;
 
 /**
- * Generic BFS algorithm.
- * Tracks whether the graph has cycles or is bipartite and generates the shortest path
- * from the start to all other nodes.
+ * Generic BFS algorithm to calculate the shortest path between the start and all other
+ * nodes.
  * Thread safe, so can be called concurrently to do a multi-source BFS.
  */
 inline vi adjBFS(const vvi &adj, const int start) {
     size_t n = adj.size();
 
-    bool hasCycle = false;
-    bool isBipartite = true;
-    vi prev(n, -1);
-    vi colours(n, -1);
+    // Track distance and whether a node has been visited (to prevent infinite loops)
+    vi visited(n, 0);
     vi distances(n, -1);
 
     std::queue<int> q;
     q.push(start);
-    colours[start] = 0;
-    distances[start] = 0;
+    visited[start] = 1;   // Visit the start
+    distances[start] = 0; // Back to itself = 0
 
     while (!q.empty()) {
         int next = q.front();
         q.pop();
 
         for (const int &neighbour : adj[next]) {
-            if (colours[neighbour] == -1) {
-                colours[neighbour] = colours[next] ^ 1;
-                distances[neighbour] = distances[next] + 1;
-                prev[neighbour] = next;
+            if (visited[neighbour] == 0) { // Only process if this is the first time
+                visited[neighbour] = 1;    // We are now visiting this node
+                distances[neighbour] = distances[next] + 1; // One more hop
                 q.push(neighbour);
-            } else {
-                if (prev[next] != neighbour) {
-                    hasCycle = true;
-                    if (colours[next] == colours[neighbour]) {
-                        isBipartite = false;
-                    }
-                }
             }
         }
     }
@@ -58,23 +47,23 @@ inline vi adjBFS(const vvi &adj, const int start) {
     return distances; // Adjust the return value as necessary
 }
 
+/**
+ * So this is pretty much the same idea as above, but we are moving in set directions,
+ * instead of using an adjacency list of neighbours.
+ */
 inline vvi gridBFS(const vvi &grid, const int startRow, const int startCol) {
     int r = (int)grid.size();
     int c = (int)grid[0].size();
 
-    vvpii prev(r, vpii(c));
-
-    vvi colours(r, vi(c, -1));
+    vvi visited(r, vi(c, 0));
     vvi distances(r, vi(c, -1));
 
     int dr[] = {-1, 1, 0, 0};
     int dc[] = {0, 0, -1, 1};
 
-    prev[startRow][startCol] = {-1, -1};
-
     std::queue<pii> q;
     q.push({startRow, startCol});
-    colours[startRow][startCol] = 0;
+    visited[startRow][startCol] = 1;
     distances[startRow][startCol] = 0;
 
     while (!q.empty()) {
@@ -87,10 +76,9 @@ inline vvi gridBFS(const vvi &grid, const int startRow, const int startCol) {
                 continue;
             if (nc < 0 || nc >= c)
                 continue;
-            if (colours[nr][nc] == -1) {
-                colours[nr][nc] = colours[row][col] ^ 1;
+            if (visited[nr][nc] == 0) {
+                visited[nr][nc] = 1;
                 distances[nr][nc] = distances[row][col] + 1;
-                prev[nr][nc] = {row, col};
                 q.push({nr, nc});
             }
         }
