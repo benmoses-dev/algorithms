@@ -27,6 +27,10 @@ int main() {
 
     std::cout << "Using max threads = " << *maxThreads << std::endl;
 
+    std::cout << "This test now uses multiple (10) loops to increase computation "
+                 "while maintaining low-ish RAM usage"
+              << std::endl;
+
     std::cout << "Memory usage is roughly 3GB. Waiting for 5 seconds to give you a "
                  "chance to Ctrl+C"
               << std::endl;
@@ -48,7 +52,9 @@ int main() {
         }
 
         auto t1 = std::chrono::high_resolution_clock::now();
-        auto gridResults = multiGridBFS(grid, gridStarts, maxThreads);
+        for (int i = 0; i < 10; i++) {
+            auto gridResults = multiGridBFS(grid, gridStarts, maxThreads);
+        }
         auto t2 = std::chrono::high_resolution_clock::now();
 
         std::cout << "multiGridBFS (" << gridStarts.size() << " starts, " << rows * cols
@@ -78,7 +84,9 @@ int main() {
         }
 
         auto t1 = std::chrono::high_resolution_clock::now();
-        auto adjResults = multiBFS(adj, adjStarts, maxThreads);
+        for (int i = 0; i < 10; i++) {
+            auto adjResults = multiBFS(adj, adjStarts, maxThreads);
+        }
         auto t2 = std::chrono::high_resolution_clock::now();
 
         std::cout << "multiBFS (" << adjStarts.size() << " starts, " << n
