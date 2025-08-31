@@ -27,10 +27,10 @@ int main() {
 
     std::cout << "Using max threads = " << *maxThreads << std::endl;
 
-    std::cout << "Memory usage is roughly 3GB. Waiting for 5 seconds to give you a "
-                 "chance to Ctrl+C"
-              << std::endl;
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    // std::cout << "Memory usage is roughly 3GB. Waiting for 5 seconds to give you a "
+    //              "chance to Ctrl+C"
+    //           << std::endl;
+    // std::this_thread::sleep_for(std::chrono::seconds(5));
     std::cout << "Starting now..." << std::endl;
 
     // Separate scopes to reset memory usage
@@ -48,7 +48,7 @@ int main() {
         }
 
         auto t1 = std::chrono::high_resolution_clock::now();
-        auto gridResults = multiGridBFS(grid, gridStarts, maxThreads);
+        vvll gridResults = multiGridBFS(grid, gridStarts, maxThreads);
         auto t2 = std::chrono::high_resolution_clock::now();
 
         std::cout << "multiGridBFS (" << gridStarts.size() << " starts, " << rows * cols
@@ -78,7 +78,7 @@ int main() {
         }
 
         auto t1 = std::chrono::high_resolution_clock::now();
-        auto adjResults = multiBFS(adj, adjStarts, maxThreads);
+        vvll adjResults = multiBFS(adj, adjStarts, maxThreads);
         auto t2 = std::chrono::high_resolution_clock::now();
 
         std::cout << "multiBFS (" << adjStarts.size() << " starts, " << n
