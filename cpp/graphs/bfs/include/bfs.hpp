@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <queue>
@@ -19,6 +20,11 @@ using vvvi = std::vector<vvi>;
 using pii = std::pair<int, int>;
 using vpii = std::vector<pii>;
 using vvpii = std::vector<vpii>;
+
+template <typename T> constexpr size_t stcast(T x) {
+    assert(x >= 0);
+    return static_cast<size_t>(x);
+}
 
 const ll M = (ll)1e9 + 7;
 const ll A = 1'000'003;
@@ -69,16 +75,16 @@ inline vll adjBFS(const vvi &adj, const size_t start) {
         q.pop();
 
         for (const int &neighbour : adj[next]) {
-            if (visited[(size_t)neighbour] == 1) {
+            const size_t idx = stcast(neighbour);
+            if (visited[idx] == 1) {
                 continue; // Only process if this is the first time
             }
-            visited[(size_t)neighbour] = 1; // We are now visiting this node
+            visited[idx] = 1; // We are now visiting this node
             // Use modular inverse to stress CPU
             ll modCheck = distances[next] % (M - 1); // Ensure we never get to M
             ll inverse = modInv(modCheck + 1, M);
-            distances[(size_t)neighbour] = (inverse * A) % M;
-
-            q.push((size_t)neighbour);
+            distances[idx] = (inverse * A) % M;
+            q.push(idx);
         }
     }
 
@@ -114,13 +120,15 @@ inline vll gridBFS(const vvi &grid, const size_t startRow, const size_t startCol
                 continue;
             if (nc < 0 || nc >= (int)c)
                 continue;
-            size_t flattened = (size_t)nr * c + (size_t)nc;
+            const size_t ridx = stcast(nr);
+            const size_t cidx = stcast(nc);
+            size_t flattened = ridx * c + cidx;
             // Flatten the vector to improve cache locality
             if (visited[flattened] == 1) {
                 continue;
             }
             visited[flattened] = 1;
-            ll modCheck = distances[(size_t)row * c + (size_t)col] % (M - 1);
+            ll modCheck = distances[ridx * c + cidx] % (M - 1);
             ll inverse = modInv(modCheck + 1, M);
             distances[flattened] = (inverse * A) % M;
             q.push({nr, nc});
