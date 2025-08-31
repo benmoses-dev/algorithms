@@ -26,8 +26,8 @@ template <typename T> constexpr size_t stcast(T x) {
     return static_cast<size_t>(x);
 }
 
-const ll M = (ll)1e9 + 7;
-const ll A = 1'000'003;
+// You can tweak this to increase or decrease the CPU load:
+const ll M = 1'000'003; // Prime. Probably best if it is less than 1e9+7.
 
 inline ll normalise(ll base, ll m) { return (base % m + m) % m; }
 
@@ -51,6 +51,12 @@ inline ll modInv(ll base, ll m) {
     base = normalise(base, m);
     ll exp = m - 2; // b^-1 is modular congruent with b^m-2 mod m
     return modPow(base, exp, m);
+}
+
+inline ll stressCPU(ll x) {
+    ll temp = (x % (M - 1)) + 1; // Ensure values are in the range [1...M-1]
+    ll inverse = modInv(temp, M);
+    return inverse % M;
 }
 
 /**
@@ -80,10 +86,7 @@ inline vll adjBFS(const vvi &adj, const size_t start) {
                 continue; // Only process if this is the first time
             }
             visited[idx] = 1; // We are now visiting this node
-            // Use modular inverse to stress CPU
-            ll modCheck = distances[next] % (M - 1); // Ensure we never get to M
-            ll inverse = modInv(modCheck + 1, M);
-            distances[idx] = (inverse * A) % M;
+            distances[idx] = stressCPU(distances[next]);
             q.push(idx);
         }
     }
@@ -128,9 +131,7 @@ inline vll gridBFS(const vvi &grid, const size_t startRow, const size_t startCol
                 continue;
             }
             visited[flattened] = 1;
-            ll modCheck = distances[ridx * c + cidx] % (M - 1);
-            ll inverse = modInv(modCheck + 1, M);
-            distances[flattened] = (inverse * A) % M;
+            distances[flattened] = stressCPU(distances[stcast(row) * c + stcast(col)]);
             q.push({nr, nc});
         }
     }
