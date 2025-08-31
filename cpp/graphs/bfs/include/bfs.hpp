@@ -30,15 +30,15 @@ inline ll modPow(ll base, ll exp, ll m) {
         throw std::invalid_argument("Modulus must be greater than 1");
     }
     base = normalise(base, m);
-    ll remainder = 1;
+    ll result = 1;
     while (exp > 0) {
-        if (exp & 1) { // If odd, just multiply by the base
-            remainder = (remainder * base) % m;
+        if (exp & 1) { // If odd, multiply by the base
+            result = (result * base) % m;
         }
-        base = (base * base) % m; // Otherwise, square the base and halve the exponent
+        base = (base * base) % m; // Square the base and halve the exponent
         exp >>= 1;
     }
-    return remainder;
+    return result;
 }
 
 inline ll modInv(ll base, ll m) {
