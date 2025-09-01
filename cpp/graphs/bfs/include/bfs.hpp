@@ -69,12 +69,12 @@ inline vll adjBFS(const vvi &adj, const size_t start) {
 
     // Track distance and whether a node has been visited (to prevent infinite loops)
     vui visited(n, 0);
-    vll distances(n, 0);
+    vll transformation(n, 0); // Transformation orbit over the finite field Z/ZM
 
     std::queue<size_t> q;
     q.push(start);
-    visited[start] = 1;   // Visit the start
-    distances[start] = 0; // Back to itself = 0
+    visited[start] = 1;        // Visit the start
+    transformation[start] = 0; // Back to itself = 0
 
     while (!q.empty()) {
         const size_t next = q.front();
@@ -86,12 +86,12 @@ inline vll adjBFS(const vvi &adj, const size_t start) {
                 continue; // Only process if this is the first time
             }
             visited[idx] = 1; // We are now visiting this node
-            distances[idx] = stressCPU(distances[next]);
+            transformation[idx] = stressCPU(transformation[next]);
             q.push(idx);
         }
     }
 
-    return distances; // Adjust the return value as necessary
+    return transformation; // Adjust the return value as necessary
 }
 
 /**
@@ -103,7 +103,7 @@ inline vll gridBFS(const vvi &grid, const size_t startRow, const size_t startCol
     const size_t c = grid[0].size();
 
     vui visited((r * c), 0);
-    vll distances((r * c), 0);
+    vll transformation((r * c), 0);
 
     const int dr[] = {-1, 1, 0, 0};
     const int dc[] = {0, 0, -1, 1};
@@ -111,7 +111,7 @@ inline vll gridBFS(const vvi &grid, const size_t startRow, const size_t startCol
     std::queue<pii> q;
     q.push({startRow, startCol});
     visited[startRow * c + startCol] = 1;
-    distances[startRow * c + startCol] = 0;
+    transformation[startRow * c + startCol] = 0;
 
     while (!q.empty()) {
         auto [row, col] = q.front();
@@ -131,12 +131,13 @@ inline vll gridBFS(const vvi &grid, const size_t startRow, const size_t startCol
                 continue;
             }
             visited[flattened] = 1;
-            distances[flattened] = stressCPU(distances[stcast(row) * c + stcast(col)]);
+            transformation[flattened] =
+                stressCPU(transformation[stcast(row) * c + stcast(col)]);
             q.push({nr, nc});
         }
     }
 
-    return distances;
+    return transformation;
 }
 
 } // namespace algo::bfs
