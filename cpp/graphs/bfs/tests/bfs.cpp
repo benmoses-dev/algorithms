@@ -19,32 +19,7 @@ int main() {
         std::cout << "From start " << starts[i] << ": ";
         for (ll d : bfsResults[i])
             std::cout << d << " ";
-        std::cout << std::endl;
-    }
-
-    const vvi grid = {
-        {0, 0, 0, 0},
-        {0, 0, 1, 0},
-        {0, 0, 0, 0},
-        {0, 1, 0, 0}
-    };
-    const vpii gridStarts = {{0, 0}, {2, 2}};
-
-    std::cout << std::endl << "multiGridBFS results:" << std::endl;
-    const vvll gridResults = multiGridBFS(grid, gridStarts);
-    size_t rows = grid.size();
-    size_t cols = grid[0].size();
-    for (size_t i = 0; i < gridResults.size(); ++i) {
-        std::cout << "From start (" << gridStarts[i].first << ", " << gridStarts[i].second
-                  << "):" << std::endl;
-        for (size_t r = 0; r < rows; r++) {
-            for (size_t c = 0; c < cols; c++) {
-                const ll dist = gridResults[i][r * cols + c];
-                std::cout << dist << "\t";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl;
+        std::cout << "\n";
     }
 
     return 0;

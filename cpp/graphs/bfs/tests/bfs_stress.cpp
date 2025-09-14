@@ -35,28 +35,6 @@ int main() {
 
     // Separate scopes to reset memory usage
     {
-        // Grid stress test
-        const int rows = 1'000;
-        const int cols = 1'000;
-
-        vvi grid(rows, vi(cols, 0));
-
-        // 1,000 start points spread across the grid
-        vpii gridStarts;
-        for (int i = 0; i < 1'000; i++) {
-            gridStarts.push_back({i, i});
-        }
-
-        auto t1 = std::chrono::high_resolution_clock::now();
-        vvll gridResults = multiGridBFS(grid, gridStarts, maxThreads);
-        auto t2 = std::chrono::high_resolution_clock::now();
-
-        std::cout << "multiGridBFS (" << gridStarts.size() << " starts, " << rows * cols
-                  << " cells) took " << std::chrono::duration<double>(t2 - t1).count()
-                  << " seconds" << std::endl;
-    }
-
-    {
         // Adjacency list stress test
         const int n = 1'000'000; // 1 million nodes
         vvi adj(n);
@@ -65,7 +43,7 @@ int main() {
         for (int i = 0; i < n - 1; i++) {
             adj[stcast(i)].push_back(i + 1);
             adj[stcast(i) + 1].push_back(i);
-            if (i % 1000 == 0 && i + 100 < n) {
+            if (i % 100 == 0 && i + 100 < n) {
                 adj[stcast(i)].push_back(i + 100);
                 adj[stcast(i) + 100].push_back(i);
             }

@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <queue>
 #include <stdexcept>
-#include <utility>
 #include <vector>
 
 namespace algo::bfs {
@@ -16,10 +15,6 @@ using vvll = std::vector<vll>;
 using vi = std::vector<int>;
 using vui = std::vector<uint8_t>;
 using vvi = std::vector<vi>;
-using vvvi = std::vector<vvi>;
-using pii = std::pair<int, int>;
-using vpii = std::vector<pii>;
-using vvpii = std::vector<vpii>;
 
 template <typename T> constexpr size_t stcast(T x) {
     assert(x >= 0);
@@ -88,52 +83,6 @@ inline vll adjBFS(const vvi &adj, const size_t start) {
             visited[idx] = 1; // We are now visiting this node
             transformation[idx] = stressCPU(transformation[next]);
             q.push(idx);
-        }
-    }
-
-    return transformation; // Adjust the return value as necessary
-}
-
-/**
- * So this is pretty much the same idea as above, but we are moving in set directions,
- * instead of using an adjacency list of neighbours.
- */
-inline vll gridBFS(const vvi &grid, const size_t startRow, const size_t startCol) {
-    const size_t r = grid.size();
-    const size_t c = grid[0].size();
-
-    vui visited((r * c), 0);
-    vll transformation((r * c), 0);
-
-    const int dr[] = {-1, 1, 0, 0};
-    const int dc[] = {0, 0, -1, 1};
-
-    std::queue<pii> q;
-    q.push({startRow, startCol});
-    visited[startRow * c + startCol] = 1;
-    transformation[startRow * c + startCol] = 0;
-
-    while (!q.empty()) {
-        auto [row, col] = q.front();
-        q.pop();
-        for (size_t d = 0; d < 4; d++) {
-            const int nr = dr[d] + row;
-            const int nc = dc[d] + col;
-            if (nr < 0 || nr >= (int)r)
-                continue;
-            if (nc < 0 || nc >= (int)c)
-                continue;
-            const size_t ridx = stcast(nr);
-            const size_t cidx = stcast(nc);
-            size_t flattened = ridx * c + cidx;
-            // Flatten the vector to improve cache locality
-            if (visited[flattened] == 1) {
-                continue;
-            }
-            visited[flattened] = 1;
-            transformation[flattened] =
-                stressCPU(transformation[stcast(row) * c + stcast(col)]);
-            q.push({nr, nc});
         }
     }
 

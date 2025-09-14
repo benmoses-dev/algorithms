@@ -22,9 +22,8 @@ struct ThreadJoiner {
  * Multi-threaded wrapper for BFS.
  * Each start point runs BFS independently in a separate thread.
  */
-template <typename V>
-inline vvll threadWrapper(const vvi &adj, const V &starts,
-                          std::optional<size_t> maxThreads = std::nullopt) {
+inline vvll multiBFS(const vvi &adj, const vi &starts,
+                     std::optional<size_t> maxThreads = std::nullopt) {
     const size_t n = starts.size();
     vvll results(n);
 
@@ -53,31 +52,14 @@ inline vvll threadWrapper(const vvi &adj, const V &starts,
                         at = q.front();
                         q.pop();
                     }
-                    if constexpr (std::is_same_v<typename V::value_type, pii>) {
-                        auto [row, col] = starts[at];
-                        results[at] = gridBFS(adj, stcast(row), stcast(col));
-                    } else {
-                        auto start = starts[at];
-                        results[at] = adjBFS(adj, stcast(start));
-                    }
+                    auto start = starts[at];
+                    results[at] = adjBFS(adj, stcast(start));
                 }
             });
         }
     }
 
     return results;
-}
-
-/**
- * Wrappers to avoid template params.
- */
-inline vvll multiBFS(const vvi &adj, const vi &starts,
-                     std::optional<size_t> maxThreads = std::nullopt) {
-    return threadWrapper<vi>(adj, starts, maxThreads);
-}
-inline vvll multiGridBFS(const vvi &grid, const vpii &starts,
-                         std::optional<size_t> maxThreads = std::nullopt) {
-    return threadWrapper<vpii>(grid, starts, maxThreads);
 }
 
 } // namespace algo::bfs
