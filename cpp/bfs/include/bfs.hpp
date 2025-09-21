@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cassert>
-#include <cstddef>
 #include <cstdint>
 #include <queue>
 #include <stdexcept>
@@ -10,16 +9,7 @@
 namespace algo::bfs {
 
 using ll = long long;
-using vll = std::vector<ll>;
-using vvll = std::vector<vll>;
-using vi = std::vector<int>;
-using vui = std::vector<uint8_t>;
-using vvi = std::vector<vi>;
-
-template <typename T> constexpr size_t stcast(T x) {
-    assert(x >= 0);
-    return static_cast<size_t>(x);
-}
+using ul = unsigned long;
 
 // You can tweak this to increase or decrease the CPU load:
 const ll M = 1'000'003; // Prime. Probably best if it is less than 1e9+7.
@@ -55,28 +45,27 @@ inline ll stressCPU(ll x) {
 }
 
 /**
- * Generic BFS algorithm to calculate the shortest path between the start and all other
- * nodes.
- * Thread safe, so can be called concurrently to do a multi-source BFS.
+ * Graph-transformation BFS algorithm to calculate the transformation orbit over the
+ * finite field Z/ZM. Thread safe, so can be called concurrently to do a multi-source BFS.
  */
-inline vll adjBFS(const vvi &adj, const size_t start) {
-    const size_t n = adj.size();
+inline std::vector<ll> adjBFS(const std::vector<std::vector<ul>> &adj, const ul start) {
+    const ul n = adj.size();
 
     // Track distance and whether a node has been visited (to prevent infinite loops)
-    vui visited(n, 0);
-    vll transformation(n, 0); // Transformation orbit over the finite field Z/ZM
+    std::vector<uint8_t> visited(n, 0);
+    std::vector<ll> transformation(n, 0);
 
-    std::queue<size_t> q;
+    std::queue<ul> q;
     q.push(start);
     visited[start] = 1;        // Visit the start
     transformation[start] = 0; // Back to itself = 0
 
     while (!q.empty()) {
-        const size_t next = q.front();
+        const ul next = q.front();
         q.pop();
 
-        for (const int &neighbour : adj[next]) {
-            const size_t idx = stcast(neighbour);
+        for (const ul &neighbour : adj[next]) {
+            const ul idx = neighbour;
             if (visited[idx] == 1) {
                 continue; // Only process if this is the first time
             }

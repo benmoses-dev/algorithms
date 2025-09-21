@@ -18,20 +18,26 @@ struct ThreadJoiner {
     }
 };
 
+template <typename T> constexpr ul stcast(T x) {
+    assert(x >= 0);
+    return static_cast<ul>(x);
+}
+
 /**
  * Multi-threaded wrapper for BFS.
  * Each start point runs BFS independently in a separate thread.
  */
-inline vvll multiBFS(const vvi &adj, const vi &starts,
-                     std::optional<size_t> maxThreads = std::nullopt) {
-    const size_t n = starts.size();
-    vvll results(n);
+inline std::vector<std::vector<ll>>
+multiBFS(const std::vector<std::vector<ul>> &adj, const std::vector<ul> &starts,
+         std::optional<ul> maxThreads = std::nullopt) {
+    const ul n = starts.size();
+    std::vector<std::vector<ll>> results(n);
 
-    const size_t max_threads =
+    const ul max_threads =
         maxThreads ? std::max(stcast(1), *maxThreads)
                    : std::max(stcast(1), stcast(std::thread::hardware_concurrency()));
-    std::queue<size_t> q;
-    for (size_t i = 0; i < n; i++) {
+    std::queue<ul> q;
+    for (ul i = 0; i < n; i++) {
         q.push(i);
     }
     std::mutex qMut;
@@ -40,10 +46,10 @@ inline vvll multiBFS(const vvi &adj, const vi &starts,
 
     {
         ThreadJoiner joiner{threads};
-        for (size_t i = 0; i < max_threads; i++) {
+        for (ul i = 0; i < max_threads; i++) {
             threads.emplace_back([&adj, &results, &qMut, &q, &starts]() {
                 while (true) {
-                    size_t at;
+                    ul at;
                     {
                         std::lock_guard lock(qMut);
                         if (q.empty()) {
@@ -53,7 +59,7 @@ inline vvll multiBFS(const vvi &adj, const vi &starts,
                         q.pop();
                     }
                     auto start = starts[at];
-                    results[at] = adjBFS(adj, stcast(start));
+                    results[at] = adjBFS(adj, start);
                 }
             });
         }
