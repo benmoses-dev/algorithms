@@ -169,32 +169,41 @@ int main() {
         assert(pip.wnpip(bowtieCW, onVertex, false) == true);
 
         // Floating-point version
-        FPolygon fBowtieCCW = {{0.0, 0.0}, {4.0, 0.0}, {2.0, 2.0},
-                               {4.0, 4.0}, {0.0, 4.0}, {2.0, 2.0}};
-        FPolygon fBowtieCW(fBowtieCCW.rbegin(), fBowtieCCW.rend());
+        FPolygon fLoopCCW = {{0.0, 0.0}, {4.0, 0.0}, {4.0, 4.0}, {0.0, 4.0},
+                             {0.0, 1.0}, {1.0, 1.0}, {1.0, 2.0}, {0.0, 2.0}};
+        FPolygon fLoopCW(fLoopCCW.rbegin(), fLoopCCW.rend());
 
-        FPoint fInsideTop{3.0, 3.0};
-        FPoint fInsideBottom{1.0, 1.0};
-        FPoint fOutsideTop{0.0, 5.0};
-        FPoint fOutsideBottom{1.0, -1.0};
-        FPoint fOnEdge{2.0, 2.0};
-        FPoint fOnVertex{0.0, 0.0};
+        FPoint fInsideTop{3.99, 3.99};
+        FPoint fOutsideTop{2.00, 4.01};
+        FPoint fInsideBottom{0.01, 0.01};
+        FPoint fOutsideBottom{1.00, -0.01};
+        FPoint fOutsideLeft{-0.01, 2.00};
+        FPoint fOutsideRight{4.01, 2.00};
+        FPoint fOnEdge{4.00, 2.00};
+        FPoint fOnVertex{0.00, 0.00};
+        FPoint fInLoop{1.01, 1.5};
 
         // Winding number floating-point, CCW
-        assert(pip.wnpip(fBowtieCCW, fInsideTop, true) == true);
-        assert(pip.wnpip(fBowtieCCW, fInsideBottom, true) == true);
-        assert(pip.wnpip(fBowtieCCW, fOutsideTop, true) == false);
-        assert(pip.wnpip(fBowtieCCW, fOutsideBottom, true) == false);
-        assert(pip.wnpip(fBowtieCCW, fOnEdge, true) == true);
-        assert(pip.wnpip(fBowtieCCW, fOnVertex, true) == true);
+        assert(pip.wnpip(fLoopCCW, fInsideTop, true) == true);
+        assert(pip.wnpip(fLoopCCW, fInsideBottom, true) == true);
+        assert(pip.wnpip(fLoopCCW, fOutsideTop, true) == false);
+        assert(pip.wnpip(fLoopCCW, fOutsideBottom, true) == false);
+        assert(pip.wnpip(fLoopCCW, fOutsideLeft, true) == false);
+        assert(pip.wnpip(fLoopCCW, fOutsideRight, true) == false);
+        assert(pip.wnpip(fLoopCCW, fOnEdge, true) == true);
+        assert(pip.wnpip(fLoopCCW, fOnVertex, true) == true);
+        assert(pip.wnpip(fLoopCCW, fInLoop, true) == true);
 
         // Winding number floating-point, CW
-        assert(pip.wnpip(fBowtieCW, fInsideTop, false) == true);
-        assert(pip.wnpip(fBowtieCW, fInsideBottom, false) == true);
-        assert(pip.wnpip(fBowtieCW, fOutsideTop, false) == false);
-        assert(pip.wnpip(fBowtieCW, fOutsideBottom, false) == false);
-        assert(pip.wnpip(fBowtieCW, fOnEdge, false) == true);
-        assert(pip.wnpip(fBowtieCW, fOnVertex, false) == true);
+        assert(pip.wnpip(fLoopCW, fInsideTop, false) == true);
+        assert(pip.wnpip(fLoopCW, fInsideBottom, false) == true);
+        assert(pip.wnpip(fLoopCW, fOutsideTop, false) == false);
+        assert(pip.wnpip(fLoopCW, fOutsideBottom, false) == false);
+        assert(pip.wnpip(fLoopCW, fOutsideLeft, false) == false);
+        assert(pip.wnpip(fLoopCW, fOutsideRight, false) == false);
+        assert(pip.wnpip(fLoopCW, fOnEdge, false) == true);
+        assert(pip.wnpip(fLoopCW, fOnVertex, false) == true);
+        assert(pip.wnpip(fLoopCW, fInLoop, false) == true);
 
         // Todo: Test overlapping polygons.
     }

@@ -35,6 +35,11 @@ if(FAST_BUILD)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -DNDEBUG -pthread")
 endif()
 
+add_executable(intersections tests/intersections.cpp)
+target_include_directories(intersections PRIVATE include)
+
 add_executable(pointinpolygon tests/pointinpolygon.cpp)
 target_include_directories(pointinpolygon PRIVATE include)
 
+add_executable(polygonarea tests/polygonarea.cpp)
+target_include_directories(polygonarea PRIVATE include)

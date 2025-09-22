@@ -1,0 +1,36 @@
+#include <cmath>
+#include <vector>
+
+using Point = std::pair<int, int>;
+using Polygon = std::vector<Point>;
+using ld = long double;
+using ul = unsigned long;
+
+/**
+ * Using winding cross-product:
+ * Area = abs(sum((Xi * Yi+1) - (Xi+1 * Yi))) / 2
+ */
+inline ld irregularArea(const Polygon &c) {
+    ld sum = 0.0;
+    ul n = c.size();
+    if (n < 3)
+        return 0.0;
+    for (ul i = 0; i < n; i++) {
+        ld Xi = c[i].first;
+        ld Yi = c[i].second;
+        ld Ynext = c[(i + 1) % n].second;
+        ld Xnext = c[(i + 1) % n].first;
+        sum += (Xi * Ynext) - (Xnext * Yi);
+    }
+    return fabsl(sum) / 2.0;
+}
+
+/**
+ * For a regular polygon with n sides of length l:
+ * Area = (n * l * l) / (4.0 * tan(pi / n))
+ */
+inline ld regularArea(ul n, ul l) {
+    if (n < 3)
+        return 0.0;
+    return (n * l * l) / (4.0 * tanl(M_PI / static_cast<ld>(n)));
+}
