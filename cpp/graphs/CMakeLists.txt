@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(BFS LANGUAGES CXX)
+project(GRAPHS LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -35,8 +35,10 @@ if(FAST_BUILD)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -DNDEBUG -pthread")
 endif()
 
-add_executable(bfs tests/bfs.cpp)
-add_executable(bfs_stress tests/bfs_stress.cpp)
+add_executable(transform tests/transform.cpp)
+add_executable(transform_stress tests/transform_stress.cpp)
+target_include_directories(transform PRIVATE include)
+target_include_directories(transform_stress PRIVATE include)
 
-target_include_directories(bfs PRIVATE include)
-target_include_directories(bfs_stress PRIVATE include)
+add_executable(dijkstra tests/dijkstra.cpp)
+target_include_directories(dijkstra PRIVATE include)
