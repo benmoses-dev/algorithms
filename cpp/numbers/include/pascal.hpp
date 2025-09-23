@@ -1,4 +1,8 @@
+#pragma once
+
 #include <vector>
+
+namespace algo::numbers {
 
 using vll = std::vector<long long>;
 using vvll = std::vector<vll>;
@@ -16,3 +20,5 @@ inline vvll pascalsTriangle(int maxN, int maxR) {
     }
     return pt;
 }
+
+} // namespace algo::numbers

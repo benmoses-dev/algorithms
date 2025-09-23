@@ -1,5 +1,9 @@
+#pragma once
+
 #include <cmath>
 #include <vector>
+
+namespace algo::geometry {
 
 using Point = std::pair<int, int>;
 using Polygon = std::vector<Point>;
@@ -34,3 +38,5 @@ inline ld regularArea(ul n, ul l) {
         return 0.0;
     return (n * l * l) / (4.0 * tanl(M_PI / static_cast<ld>(n)));
 }
+
+} // namespace algo::geometry

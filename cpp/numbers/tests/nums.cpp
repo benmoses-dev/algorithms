@@ -6,6 +6,8 @@
 #include <numeric>
 #include <vector>
 
+using namespace algo::numbers;
+
 int main() {
     {
         // Test 1: Small sieve correctness

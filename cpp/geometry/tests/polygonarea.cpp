@@ -2,6 +2,8 @@
 #include <cassert>
 #include <iostream>
 
+using namespace algo::geometry;
+
 const ld EPS = 1e-9;
 
 inline bool nearlyEqual(ld a, ld b) { return fabsl(a - b) < EPS; }

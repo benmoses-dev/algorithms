@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 
+using namespace algo::strings;
+
 int main() {
     std::string a, b;
     std::cout << "Please enter the first string: ";

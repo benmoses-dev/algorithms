@@ -1,9 +1,9 @@
 #include "transform.hpp"
 #include <iostream>
 
-int main() {
-    using namespace algo::bfs;
+using namespace algo::bfs;
 
+int main() {
     const std::vector<std::vector<ul>> adj = {
         {1, 2},   // Node 0 (start)
         {0, 3},   // Node 1

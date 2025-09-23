@@ -1,5 +1,9 @@
+#pragma once
+
 #include <cstdint>
 #include <vector>
+
+namespace algo::numbers {
 
 using ll = long long;
 
@@ -18,3 +22,5 @@ inline std::vector<uint8_t> sieve(ll N) {
     }
     return isPrime;
 }
+
+} // namespace algo::numbers

@@ -1,4 +1,8 @@
+#pragma once
+
 #include <cmath>
+
+namespace algo::geometry {
 
 const double EPSILON = 1e-9;
 
@@ -82,3 +86,5 @@ struct Segment {
         return true;
     }
 };
+
+} // namespace algo::geometry

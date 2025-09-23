@@ -2,6 +2,8 @@
 #include <cassert>
 #include <iostream>
 
+using namespace algo::geometry;
+
 int main() {
     Point inter;
 

@@ -1,6 +1,10 @@
+#pragma once
+
 #include <cmath>
 #include <utility>
 #include <vector>
+
+namespace algo::geometry {
 
 using ll = long long;
 using ul = unsigned long;
@@ -277,3 +281,5 @@ class PointInPolygon {
         return (sqrt3 * std::fabs(x) + std::fabs(y) <= sqrt3 * s);
     }
 };
+
+} // namespace algo::geometry

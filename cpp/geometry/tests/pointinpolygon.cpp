@@ -3,6 +3,8 @@
 #include <climits>
 #include <iostream>
 
+using namespace algo::geometry;
+
 int main() {
     PointInPolygon pip;
 

@@ -1,6 +1,10 @@
+#pragma once
+
 #include <algorithm>
 #include <string>
 #include <vector>
+
+namespace algo::strings {
 
 /**
  * Build up a DP recurrence based on the fact that the current shortest supersequence
@@ -69,3 +73,5 @@ inline std::string shortestSupersequence(std::string a, std::string b) {
     reverse(result.begin(), result.end());
     return result;
 }
+
+} // namespace algo::strings
