@@ -1,9 +1,9 @@
 #pragma once
 
 #include <algorithm>
-#include <cassert>
 #include <cstdint>
 #include <stack>
+#include <stdexcept>
 #include <vector>
 
 namespace algo::dfs {
@@ -11,7 +11,9 @@ namespace algo::dfs {
 using Bridge = std::pair<std::uint64_t, std::uint64_t>;
 
 template <typename T> constexpr std::uint64_t to_uint(T x) {
-    assert(x >= 0);
+    if (x < 0) {
+        throw std::runtime_error("Cannot cast a negative to unsigned!");
+    }
     return static_cast<std::uint64_t>(x);
 }
 

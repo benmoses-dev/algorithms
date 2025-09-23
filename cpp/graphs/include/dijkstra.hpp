@@ -1,10 +1,10 @@
 #pragma once
 
 #include <algorithm>
-#include <cassert>
 #include <climits>
 #include <cstdint>
 #include <queue>
+#include <stdexcept>
 #include <vector>
 
 namespace algo::bfs {
@@ -12,7 +12,9 @@ namespace algo::bfs {
 using edge = std::pair<std::uint64_t, std::uint64_t>;
 
 template <typename T> constexpr std::uint64_t to_uint(T x) {
-    assert(x >= 0);
+    if (x < 0) {
+        throw std::runtime_error("Cannot cast a negative to unsigned!");
+    }
     return static_cast<std::uint64_t>(x);
 }
 

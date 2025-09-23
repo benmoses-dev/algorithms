@@ -11,6 +11,13 @@
 
 namespace algo::bfs {
 
+template <typename T> constexpr std::uint64_t to_uint(T x) {
+    if (x < 0) {
+        throw std::runtime_error("Cannot cast a negative to unsigned!");
+    }
+    return static_cast<std::uint64_t>(x);
+}
+
 // You can tweak this to increase or decrease the CPU load:
 const std::int64_t M = 1'000'003; // Prime. Probably best if it is less than 1e9+7.
 
@@ -91,11 +98,6 @@ struct ThreadJoiner {
         }
     }
 };
-
-template <typename T> constexpr std::uint64_t to_uint(T x) {
-    assert(x >= 0);
-    return static_cast<std::uint64_t>(x);
-}
 
 /**
  * Multi-threaded wrapper for BFS.
