@@ -74,6 +74,23 @@ int main() {
     assert(prev[6] == 0);  // 0 -> 6
     assert(prev[7] == -1); // disconnected
 
+    // Path reconstruction assertions
+    auto pathTo5 = reconstructPath(5, prev);
+    std::vector<ul> expected5 = {0, 1, 2, 3, 4, 5};
+    assert(pathTo5 == expected5);
+
+    auto pathTo6 = reconstructPath(6, prev);
+    std::vector<ul> expected6 = {0, 6};
+    assert(pathTo6 == expected6);
+
+    auto pathTo2 = reconstructPath(2, prev);
+    std::vector<ul> expected2 = {0, 1, 2};
+    assert(pathTo2 == expected2);
+
+    auto pathTo7 = reconstructPath(7, prev);
+    std::vector<ul> expected7 = {7}; // Unreachable, only itself
+    assert(pathTo7 == expected7);
+
     std::cout << "All tests passed!\n";
     return 0;
 }

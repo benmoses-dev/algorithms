@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <climits>
 #include <queue>
 #include <vector>
@@ -41,6 +42,19 @@ inline std::vector<ul> dijkstra(std::vector<std::vector<edge>> &adjacencyList,
     }
 
     return distances;
+}
+
+inline std::vector<ul> reconstructPath(ul end, const std::vector<int> &prev) {
+    std::vector<ul> path;
+    ul curr = end;
+    while (true) {
+        path.push_back(curr);
+        if (prev[curr] < 0)
+            break;
+        curr = static_cast<ul>(prev[curr]);
+    }
+    reverse(path.begin(), path.end());
+    return path;
 }
 
 } // namespace algo::bfs
