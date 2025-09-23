@@ -1,19 +1,30 @@
 #pragma once
 
 #include <algorithm>
+#include <cassert>
 #include <climits>
+#include <cstdint>
 #include <queue>
 #include <vector>
 
 namespace algo::bfs {
 
-using ul = unsigned long;
-using edge = std::pair<ul, ul>;
+using edge = std::pair<std::uint64_t, std::uint64_t>;
 
-inline std::vector<ul> dijkstra(std::vector<std::vector<edge>> &adjacencyList,
-                                std::vector<int> &prev, ul start) {
-    ul n = adjacencyList.size();
-    std::vector<ul> distances(n, UINT_MAX); // Non-negative weights
+template <typename T> constexpr std::uint64_t to_uint(T x) {
+    assert(x >= 0);
+    return static_cast<std::uint64_t>(x);
+}
+
+template <typename T> constexpr std::int64_t to_int(T x) {
+    return static_cast<std::int64_t>(x);
+}
+
+inline std::vector<std::uint64_t> dijkstra(std::vector<std::vector<edge>> &adjacencyList,
+                                           std::vector<std::int64_t> &prev,
+                                           std::uint64_t start) {
+    std::size_t n = adjacencyList.size();
+    std::vector<std::uint64_t> distances(n, UINT64_MAX); // Non-negative weights
 
     // Queue of pair<weight, index> - sorted by smallest distance (min heap)
     std::priority_queue<edge, std::vector<edge>, std::greater<edge>> pq;
@@ -29,15 +40,15 @@ inline std::vector<ul> dijkstra(std::vector<std::vector<edge>> &adjacencyList,
             continue; // Stale value on queue
 
         for (const auto &[index, weight] : adjacencyList[i]) {
-            ul currDist = distances[index];
-            ul newDist = d + weight;
+            std::uint64_t currDist = distances[index];
+            std::uint64_t newDist = d + weight;
             if (newDist < currDist) {
                 /**
                  * Going to the neighbour through the current node is better
                  * than the current route to that node.
                  */
                 distances[index] = newDist;
-                prev[index] = static_cast<int>(i);
+                prev[index] = to_int(i);
                 pq.push({newDist, index});
             }
         }
@@ -46,14 +57,15 @@ inline std::vector<ul> dijkstra(std::vector<std::vector<edge>> &adjacencyList,
     return distances;
 }
 
-inline std::vector<ul> reconstructPath(ul end, const std::vector<int> &prev) {
-    std::vector<ul> path;
-    ul curr = end;
+inline std::vector<std::uint64_t> reconstructPath(std::uint64_t end,
+                                                  const std::vector<std::int64_t> &prev) {
+    std::vector<std::uint64_t> path;
+    std::uint64_t curr = end;
     while (true) {
         path.push_back(curr);
         if (prev[curr] < 0)
             break;
-        curr = static_cast<ul>(prev[curr]);
+        curr = to_uint(prev[curr]);
     }
     reverse(path.begin(), path.end());
     return path;

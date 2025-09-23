@@ -8,46 +8,49 @@
 
 namespace algo::dfs {
 
-using Bridge = std::pair<int, int>;
-using ul = unsigned long;
+using Bridge = std::pair<std::uint64_t, std::uint64_t>;
 
-template <typename T> constexpr ul to_ul(T x) {
+template <typename T> constexpr std::uint64_t to_uint(T x) {
     assert(x >= 0);
-    return static_cast<ul>(x);
+    return static_cast<std::uint64_t>(x);
 }
 
-template <typename T> constexpr int to_int(T x) { return static_cast<int>(x); }
+template <typename T> constexpr std::int64_t to_int(T x) {
+    return static_cast<std::int64_t>(x);
+}
 
 /**
  * Store the results of the DFS.
  * This allows us to solve multiple different types of graph/tree traversal problems.
  */
 struct DFSResult {
-    bool hasCycle;               // Detect cycles in undirected or directed graphs.
-    std::vector<int> parent;     // Used to recreate the path through the graph.
-    std::vector<int> components; // Used for connectivity checks.
-    std::vector<int> entry;      // Track the order of processing.
-    std::vector<int> exit;       // Used to track ancestors.
-    std::vector<int> low;        // Used to find the critical components of a graph.
-    std::vector<ul> articulationPoints; // Critical nodes in an undirected graph.
-    std::vector<Bridge> bridges;        // Critical edges in an undirected graph.
-    std::vector<std::vector<ul>>
-        sccs;                     // Strongly-connected components in a directed graph.
-    std::stack<ul> sccStack;      // Track current component stack.
-    std::vector<uint8_t> onStack; // Tarjan's SCC algorithm.
-    std::vector<int> sccIndex;    // Component ID for each node in Tarjan's.
-    std::vector<ul> postOrder;    // Track post order of traversal.
-    std::vector<ul> topoOrder;    // Only useful in a DAG.
+    bool hasCycle;                    // Detect cycles in undirected or directed graphs.
+    std::vector<std::int64_t> parent; // Used to recreate the path through the graph.
+    std::vector<std::int64_t> components; // Used for connectivity checks.
+    std::vector<std::int64_t> entry;      // Track the order of processing.
+    std::vector<std::int64_t> exit;       // Used to track ancestors.
+    std::vector<std::int64_t> low; // Used to find the critical components of a graph.
+    std::vector<std::uint64_t>
+        articulationPoints;      // Critical nodes in an undirected graph.
+    std::vector<Bridge> bridges; // Critical edges in an undirected graph.
+    std::vector<std::vector<std::uint64_t>>
+        sccs; // Strongly-connected components in a directed graph.
+    std::stack<std::uint64_t> sccStack;   // Track current component stack.
+    std::vector<uint8_t> onStack;         // Tarjan's SCC algorithm.
+    std::vector<std::int64_t> sccIndex;   // Component ID for each node in Tarjan's.
+    std::vector<std::uint64_t> postOrder; // Track post order of traversal.
+    std::vector<std::uint64_t> topoOrder; // Only useful in a DAG.
 };
 
 class DFSDriver {
   private:
-    int timer;
-    int currentComponent;
-    int currSCC;
+    std::int64_t timer;
+    std::int64_t currentComponent;
+    std::int64_t currSCC;
 
-    void undirectedDfs(std::vector<std::vector<ul>> &adj, std::vector<uint8_t> &visited,
-                       DFSResult &res, ul u, int p = -1) {
+    void undirectedDfs(std::vector<std::vector<std::uint64_t>> &adj,
+                       std::vector<uint8_t> &visited, DFSResult &res, std::uint64_t u,
+                       std::int64_t p = -1) {
         /**
          * 0 = not visited
          * 1 = visiting
@@ -58,15 +61,15 @@ class DFSDriver {
         res.components[u] = currentComponent; // Flood fill all nodes in the same DFS.
 
         res.entry[u] = res.low[u] = timer++;
-        ul children = 0;
+        std::uint64_t children = 0;
         bool isArticulation = false;
 
-        for (ul v : adj[u]) {
-            if (p < 0 || v == to_ul(p)) // Don't go back up the edge.
+        for (std::uint64_t v : adj[u]) {
+            if (p >= 0 && v == to_uint(p)) // Don't go back up the edge.
                 continue;
 
             if (visited[v] == 0) {
-                undirectedDfs(adj, visited, res, v, static_cast<int>(u));
+                undirectedDfs(adj, visited, res, v, to_int(u));
 
                 // v has now been processed (and is a descendant) - use its low-link
                 // value.
@@ -97,10 +100,8 @@ class DFSDriver {
                  */
                 res.low[u] = std::min(res.low[u], res.entry[v]);
 
-                if (p >= 0 && v != to_ul(p)) {
-                    // Back edge => cycle
-                    res.hasCycle = true;
-                }
+                // Back edge => cycle
+                res.hasCycle = true;
             }
         }
 
@@ -117,8 +118,9 @@ class DFSDriver {
         res.postOrder.push_back(u);
     }
 
-    void directedDfs(std::vector<std::vector<ul>> &adj, std::vector<uint8_t> &visited,
-                     DFSResult &res, ul u, int p = -1) {
+    void directedDfs(std::vector<std::vector<std::uint64_t>> &adj,
+                     std::vector<uint8_t> &visited, DFSResult &res, std::uint64_t u,
+                     std::int64_t p = -1) {
         /**
          * 0 = not visited
          * 1 = visiting
@@ -135,10 +137,10 @@ class DFSDriver {
         res.sccStack.push(u);
         res.onStack[u] = 1;
 
-        for (ul v : adj[u]) {
+        for (std::uint64_t v : adj[u]) {
             if (visited[v] == 0) {
                 // Recurse and then update the low-link.
-                directedDfs(adj, visited, res, v, static_cast<int>(u));
+                directedDfs(adj, visited, res, v, to_int(u));
                 res.low[u] = std::min(res.low[u], res.low[v]);
             } else if (res.onStack[v] == 1) { // Currently being processed.
                 res.low[u] = std::min(res.low[u], res.entry[v]);
@@ -150,9 +152,9 @@ class DFSDriver {
 
         if (res.low[u] == res.entry[u]) {
             // Root of SCC - process all strongly connected components in this group.
-            std::vector<ul> components;
+            std::vector<std::uint64_t> components;
             while (!res.sccStack.empty()) {
-                ul v = res.sccStack.top();
+                std::uint64_t v = res.sccStack.top();
                 res.sccStack.pop();
                 res.onStack[v] = 0;
                 components.push_back(v);
@@ -175,8 +177,9 @@ class DFSDriver {
      * Pass isDirected depending on whether the graph is directed or
      * not.
      */
-    DFSResult runDFS(std::vector<std::vector<ul>> &adj, bool isDirected = false) {
-        ul n = adj.size();
+    DFSResult runDFS(std::vector<std::vector<std::uint64_t>> &adj,
+                     bool isDirected = false) {
+        std::size_t n = adj.size();
 
         DFSResult res;
         res.parent.assign(n, -1);
@@ -189,7 +192,7 @@ class DFSDriver {
         res.onStack.assign(n, 0);
         std::vector<uint8_t> visited(n, 0);
 
-        for (ul u = 0; u < n; u++) {
+        for (std::size_t u = 0; u < n; u++) {
             if (visited[u] == 0) {
                 if (isDirected) {
                     directedDfs(adj, visited, res, u, -1);
@@ -212,11 +215,11 @@ class DFSDriver {
     /**
      * Re-construct the recursion path using the parent vector.
      */
-    std::vector<ul> getPath(int u, DFSResult &res) {
-        std::vector<ul> path;
+    std::vector<std::uint64_t> getPath(std::int64_t u, DFSResult &res) {
+        std::vector<std::uint64_t> path;
         while (u >= 0) {
-            path.push_back(to_ul(u));
-            u = res.parent[to_ul(u)];
+            path.push_back(to_uint(u));
+            u = res.parent[to_uint(u)];
         }
         reverse(path.begin(), path.end());
         return path;
@@ -225,7 +228,7 @@ class DFSDriver {
     /**
      * Is u an ancestor of v?
      */
-    bool isAncestor(ul u, ul v, const DFSResult &res) {
+    bool isAncestor(std::uint64_t u, std::uint64_t v, const DFSResult &res) {
         return (res.entry[u] <= res.entry[v]) && (res.exit[v] <= res.exit[u]);
     }
 };

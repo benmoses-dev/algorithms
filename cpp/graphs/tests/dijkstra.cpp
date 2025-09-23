@@ -51,7 +51,7 @@ int main() {
     graph[5].push_back({6, 1000});
     // node 7: disconnected
 
-    std::vector<int> prev(8, -1);
+    std::vector<std::int64_t> prev(8, -1);
     auto dist = dijkstra(graph, prev, 0);
 
     // Distances
@@ -62,7 +62,7 @@ int main() {
     assert(dist[4] == 153);
     assert(dist[5] == 155);
     assert(dist[6] == 1000);
-    assert(dist[7] == UINT_MAX);
+    assert(dist[7] == UINT64_MAX);
 
     // Predecessors
     assert(prev[0] == -1); // start
@@ -76,19 +76,19 @@ int main() {
 
     // Path reconstruction assertions
     auto pathTo5 = reconstructPath(5, prev);
-    std::vector<ul> expected5 = {0, 1, 2, 3, 4, 5};
+    std::vector<uint64_t> expected5 = {0, 1, 2, 3, 4, 5};
     assert(pathTo5 == expected5);
 
     auto pathTo6 = reconstructPath(6, prev);
-    std::vector<ul> expected6 = {0, 6};
+    std::vector<uint64_t> expected6 = {0, 6};
     assert(pathTo6 == expected6);
 
     auto pathTo2 = reconstructPath(2, prev);
-    std::vector<ul> expected2 = {0, 1, 2};
+    std::vector<uint64_t> expected2 = {0, 1, 2};
     assert(pathTo2 == expected2);
 
     auto pathTo7 = reconstructPath(7, prev);
-    std::vector<ul> expected7 = {7}; // Unreachable, only itself
+    std::vector<uint64_t> expected7 = {7}; // Unreachable, only itself
     assert(pathTo7 == expected7);
 
     std::cout << "All tests passed!\n";

@@ -4,7 +4,7 @@
 using namespace algo::bfs;
 
 int main() {
-    const std::vector<std::vector<ul>> adj = {
+    const std::vector<std::vector<std::uint64_t>> adj = {
         {1, 2},   // Node 0 (start)
         {0, 3},   // Node 1
         {0, 4},   // Node 2
@@ -44,13 +44,13 @@ int main() {
     };
 
     // Multiple spines (starts) at nodes 0, 4, 8, 12, 16
-    const std::vector<ul> starts = {0, 4, 8, 12, 16};
+    const std::vector<std::uint64_t> starts = {0, 4, 8, 12, 16};
 
     std::cout << "multiBFS results:" << std::endl;
-    const std::vector<std::vector<ll>> bfsResults = multiBFS(adj, starts);
-    for (ul i = 0; i < bfsResults.size(); ++i) {
+    const std::vector<std::vector<std::int64_t>> bfsResults = multiBFS(adj, starts);
+    for (std::size_t i = 0; i < bfsResults.size(); ++i) {
         std::cout << "From start " << starts[i] << ": ";
-        for (ll d : bfsResults[i])
+        for (std::int64_t d : bfsResults[i])
             std::cout << d << " ";
         std::cout << "\n";
     }

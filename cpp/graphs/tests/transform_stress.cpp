@@ -5,7 +5,7 @@
 using namespace algo::bfs;
 
 int main() {
-    std::optional<ul> maxThreads;
+    std::optional<std::uint64_t> maxThreads;
     std::string line;
 
     std::cout << "Enter max threads (or leave blank to use max hardware concurrency): ";
@@ -13,7 +13,7 @@ int main() {
 
     if (!line.empty()) {
         try {
-            ul val = std::stoul(line);
+            std::uint64_t val = std::stoul(line);
             maxThreads = val;
         } catch (...) {
             std::cerr << "Invalid number!" << std::endl;
@@ -30,11 +30,11 @@ int main() {
 
     {
         // Adjacency list stress test
-        const ul n = 1'000'000; // 1 million nodes
-        std::vector<std::vector<ul>> adj(n);
+        const std::uint64_t n = 1'000'000; // 1 million nodes
+        std::vector<std::vector<std::uint64_t>> adj(n);
 
         // Sparse chain + some extra edges to make it interesting
-        for (ul i = 0; i < n - 1; i++) {
+        for (std::uint64_t i = 0; i < n - 1; i++) {
             adj[i].push_back(i + 1);
             adj[i + 1].push_back(i);
             if (i % 100 == 0 && i + 100 < n) {
@@ -44,14 +44,15 @@ int main() {
         }
 
         // 1,000 start points spread across the graph
-        ul starts = 1'000;
-        std::vector<ul> adjStarts(starts, 0);
-        for (ul i = 0; i < starts; i++) {
+        std::uint64_t starts = 1'000;
+        std::vector<std::uint64_t> adjStarts(starts, 0);
+        for (std::uint64_t i = 0; i < starts; i++) {
             adjStarts[i] = i * starts;
         }
 
         auto t1 = std::chrono::high_resolution_clock::now();
-        std::vector<std::vector<ll>> adjResults = multiBFS(adj, adjStarts, maxThreads);
+        std::vector<std::vector<std::int64_t>> adjResults =
+            multiBFS(adj, adjStarts, maxThreads);
         auto t2 = std::chrono::high_resolution_clock::now();
 
         std::cout << "multiBFS (" << adjStarts.size() << " starts, " << n

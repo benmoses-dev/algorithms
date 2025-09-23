@@ -11,20 +11,19 @@
 
 namespace algo::bfs {
 
-using ll = long long;
-using ul = unsigned long;
-
 // You can tweak this to increase or decrease the CPU load:
-const ll M = 1'000'003; // Prime. Probably best if it is less than 1e9+7.
+const std::int64_t M = 1'000'003; // Prime. Probably best if it is less than 1e9+7.
 
-inline ll normalise(ll base, ll m) { return (base % m + m) % m; }
+inline std::int64_t normalise(std::int64_t base, std::int64_t m) {
+    return (base % m + m) % m;
+}
 
-inline ll modPow(ll base, ll exp, ll m) {
+inline std::int64_t modPow(std::int64_t base, std::int64_t exp, std::int64_t m) {
     if (m <= 1) {
         throw std::invalid_argument("Modulus must be greater than 1");
     }
     base = normalise(base, m);
-    ll result = 1;
+    std::int64_t result = 1;
     while (exp > 0) {
         if (exp & 1) { // If odd, multiply by the base
             result = (result * base) % m;
@@ -35,15 +34,15 @@ inline ll modPow(ll base, ll exp, ll m) {
     return result;
 }
 
-inline ll modInv(ll base, ll m) {
+inline std::int64_t modInv(std::int64_t base, std::int64_t m) {
     base = normalise(base, m);
-    ll exp = m - 2; // b^-1 is modular congruent with b^m-2 mod m
+    std::int64_t exp = m - 2; // b^-1 is modular congruent with b^m-2 mod m
     return modPow(base, exp, m);
 }
 
-inline ll stressCPU(ll x) {
-    ll temp = (x % (M - 1)) + 1; // Ensure values are in the range [1...M-1]
-    ll inverse = modInv(temp, M);
+inline std::int64_t stressCPU(std::int64_t x) {
+    std::int64_t temp = (x % (M - 1)) + 1; // Ensure values are in the range [1...M-1]
+    std::int64_t inverse = modInv(temp, M);
     return inverse % M;
 }
 
@@ -51,24 +50,25 @@ inline ll stressCPU(ll x) {
  * Graph-transformation BFS algorithm to calculate the transformation orbit over the
  * finite field Z/ZM. Thread safe, so can be called concurrently to do a multi-source BFS.
  */
-inline std::vector<ll> adjBFS(const std::vector<std::vector<ul>> &adj, const ul start) {
-    const ul n = adj.size();
+inline std::vector<std::int64_t>
+adjBFS(const std::vector<std::vector<std::uint64_t>> &adj, const std::uint64_t start) {
+    const std::size_t n = adj.size();
 
     // Track distance and whether a node has been visited (to prevent infinite loops)
     std::vector<uint8_t> visited(n, 0);
-    std::vector<ll> transformation(n, 0);
+    std::vector<std::int64_t> transformation(n, 0);
 
-    std::queue<ul> q;
+    std::queue<std::uint64_t> q;
     q.push(start);
     visited[start] = 1;        // Visit the start
     transformation[start] = 0; // Back to itself = 0
 
     while (!q.empty()) {
-        const ul next = q.front();
+        const std::uint64_t next = q.front();
         q.pop();
 
-        for (const ul &neighbour : adj[next]) {
-            const ul idx = neighbour;
+        for (const std::uint64_t &neighbour : adj[next]) {
+            const std::uint64_t idx = neighbour;
             if (visited[idx] == 1) {
                 continue; // Only process if this is the first time
             }
@@ -92,26 +92,27 @@ struct ThreadJoiner {
     }
 };
 
-template <typename T> constexpr ul stcast(T x) {
+template <typename T> constexpr std::uint64_t to_uint(T x) {
     assert(x >= 0);
-    return static_cast<ul>(x);
+    return static_cast<std::uint64_t>(x);
 }
 
 /**
  * Multi-threaded wrapper for BFS.
  * Each start point runs BFS independently in a separate thread.
  */
-inline std::vector<std::vector<ll>>
-multiBFS(const std::vector<std::vector<ul>> &adj, const std::vector<ul> &starts,
-         std::optional<ul> maxThreads = std::nullopt) {
-    const ul n = starts.size();
-    std::vector<std::vector<ll>> results(n);
+inline std::vector<std::vector<std::int64_t>>
+multiBFS(const std::vector<std::vector<std::uint64_t>> &adj,
+         const std::vector<std::uint64_t> &starts,
+         std::optional<std::uint64_t> maxThreads = std::nullopt) {
+    const std::size_t n = starts.size();
+    std::vector<std::vector<std::int64_t>> results(n);
 
-    const ul max_threads =
-        maxThreads ? std::max(stcast(1), *maxThreads)
-                   : std::max(stcast(1), stcast(std::thread::hardware_concurrency()));
-    std::queue<ul> q;
-    for (ul i = 0; i < n; i++) {
+    const std::uint64_t max_threads =
+        maxThreads ? std::max(to_uint(1), *maxThreads)
+                   : std::max(to_uint(1), to_uint(std::thread::hardware_concurrency()));
+    std::queue<std::uint64_t> q;
+    for (std::size_t i = 0; i < n; i++) {
         q.push(i);
     }
     std::mutex qMut;
@@ -120,10 +121,10 @@ multiBFS(const std::vector<std::vector<ul>> &adj, const std::vector<ul> &starts,
 
     {
         ThreadJoiner joiner{threads};
-        for (ul i = 0; i < max_threads; i++) {
+        for (std::size_t i = 0; i < max_threads; i++) {
             threads.emplace_back([&adj, &results, &qMut, &q, &starts]() {
                 while (true) {
-                    ul at;
+                    std::uint64_t at;
                     {
                         std::lock_guard lock(qMut);
                         if (q.empty()) {

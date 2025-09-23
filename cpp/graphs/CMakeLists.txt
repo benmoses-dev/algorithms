@@ -42,3 +42,6 @@ target_include_directories(transform_stress PRIVATE include)
 
 add_executable(dijkstra tests/dijkstra.cpp)
 target_include_directories(dijkstra PRIVATE include)
+
+add_executable(dfs tests/dfs.cpp)
+target_include_directories(dfs PRIVATE include)
