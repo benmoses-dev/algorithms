@@ -113,7 +113,7 @@ multiBFS(const std::vector<std::vector<std::uint64_t>> &adj,
     const std::uint64_t max_threads =
         maxThreads ? std::max(to_uint(1), *maxThreads)
                    : std::max(to_uint(1), to_uint(std::thread::hardware_concurrency()));
-    std::queue<std::uint64_t> q;
+    std::queue<std::size_t> q;
     for (std::size_t i = 0; i < n; i++) {
         q.push(i);
     }

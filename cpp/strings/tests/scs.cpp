@@ -1,5 +1,6 @@
 #include "scs.hpp"
 #include <chrono>
+#include <cstdint>
 #include <iostream>
 #include <string>
 
@@ -14,21 +15,20 @@ int main() {
 
     std::string first = "";
     std::string second = "";
-    for (int i = 1; i < 1000; i++) {
+    for (std::size_t i = 1; i < 1000; i++) {
         first += a;
         second += b;
     }
 
-    size_t n = first.size();
-    size_t m = second.size();
+    std::size_t n = first.size();
+    std::size_t m = second.size();
 
     std::cout << "Length of string a: " << n << "\n";
     std::cout << "Length of string b: " << m << "\n";
 
-    using ull = unsigned long long;
-    ull p = (ull)(m + 1) * (n + 1);
-    ull bytes = p * sizeof(size_t);
-    ull gb = bytes >> 30;
+    std::uint64_t p = (std::uint64_t)(m + 1) * (n + 1);
+    std::uint64_t bytes = p * sizeof(std::size_t);
+    std::uint64_t gb = bytes >> 30;
     std::cout << "This test will use " << gb << " GB of RAM\n";
     if (gb > 4ULL) {
         std::cout << "You will use more than 4GB RAM, aborting..." << "\n";

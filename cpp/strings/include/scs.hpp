@@ -12,14 +12,14 @@ namespace algo::strings {
  * of the shortest supersequence found so far.
  */
 inline std::string shortestSupersequence(std::string a, std::string b) {
-    size_t m = a.size();
-    size_t n = b.size();
+    std::size_t m = a.size();
+    std::size_t n = b.size();
 
-    std::vector<std::vector<size_t>> dp(m + 1, std::vector<size_t>(n + 1));
+    std::vector<std::vector<std::size_t>> dp(m + 1, std::vector<std::size_t>(n + 1));
 
-    for (size_t i = 0; i <= m; i++)
+    for (std::size_t i = 0; i <= m; i++)
         dp[i][0] = i;
-    for (size_t j = 0; j <= n; j++)
+    for (std::size_t j = 0; j <= n; j++)
         dp[0][j] = j;
 
     /**
@@ -29,8 +29,8 @@ inline std::string shortestSupersequence(std::string a, std::string b) {
      * a[i - 1] == b[j -1] => scs(a[i - 1], b[j - 1]) + 1
      * a[i - 1] != b[j -1] => min(scs(a[i - 1], b[j]), scs(a[i], b[j - 1])) + 1
      */
-    for (size_t i = 1; i <= m; i++)
-        for (size_t j = 1; j <= n; j++)
+    for (std::size_t i = 1; i <= m; i++)
+        for (std::size_t j = 1; j <= n; j++)
             if (a[i - 1] == b[j - 1]) {
                 dp[i][j] = 1 + dp[i - 1][j - 1];
             } else {
@@ -38,8 +38,8 @@ inline std::string shortestSupersequence(std::string a, std::string b) {
             }
 
     std::string result;
-    size_t i = m;
-    size_t j = n;
+    std::size_t i = m;
+    std::size_t j = n;
     while (i > 0 && j > 0) {
         if (a[i - 1] == b[j - 1]) { // We only added this once, move diagonally
             result += a[i - 1];
