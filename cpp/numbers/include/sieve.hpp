@@ -5,16 +5,17 @@
 
 namespace algo::numbers {
 
-using ll = long long;
+using u8 = std::uint8_t;
+using u64 = std::uint64_t;
 
-inline std::vector<uint8_t> sieve(ll N) {
-    std::vector<uint8_t> isPrime(N + 1, 1);
+inline std::vector<u8> sieve(u64 N) {
+    std::vector<u8> isPrime(N + 1, 1);
     isPrime[0] = isPrime[1] = 0;
-    for (ll i = 2; i <= (N / i); i++) {
+    for (std::size_t i = 2; i <= (N / i); i++) {
         if (isPrime[i] == 0) {
             continue;
         }
-        for (ll j = (i * i); j <= N; j += i) {
+        for (std::size_t j = (i * i); j <= N; j += i) {
             if (isPrime[j] == 1) {
                 isPrime[j] = 0;
             }

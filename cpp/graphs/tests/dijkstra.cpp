@@ -51,7 +51,7 @@ int main() {
     graph[5].push_back({6, 1000});
     // node 7: disconnected
 
-    std::vector<std::int64_t> prev(8, -1);
+    std::vector<i64> prev(8, -1);
     auto dist = dijkstra(graph, prev, 0);
 
     // Distances

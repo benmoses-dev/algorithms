@@ -11,26 +11,27 @@
 
 namespace algo::bfs {
 
-template <typename T> constexpr std::uint64_t to_uint(T x) {
+using u64 = std::uint64_t;
+using i64 = std::int64_t;
+
+template <typename T> constexpr u64 to_uint(T x) {
     if (x < 0) {
         throw std::runtime_error("Cannot cast a negative to unsigned!");
     }
-    return static_cast<std::uint64_t>(x);
+    return static_cast<u64>(x);
 }
 
 // You can tweak this to increase or decrease the CPU load:
-const std::int64_t M = 1'000'003; // Prime. Probably best if it is less than 1e9+7.
+const i64 M = 1'000'003; // Prime. Probably best if it is less than 1e9+7.
 
-inline std::int64_t normalise(std::int64_t base, std::int64_t m) {
-    return (base % m + m) % m;
-}
+inline i64 normalise(i64 base, i64 m) { return (base % m + m) % m; }
 
-inline std::int64_t modPow(std::int64_t base, std::int64_t exp, std::int64_t m) {
+inline i64 modPow(i64 base, i64 exp, i64 m) {
     if (m <= 1) {
         throw std::invalid_argument("Modulus must be greater than 1");
     }
     base = normalise(base, m);
-    std::int64_t result = 1;
+    i64 result = 1;
     while (exp > 0) {
         if (exp & 1) { // If odd, multiply by the base
             result = (result * base) % m;
@@ -41,15 +42,15 @@ inline std::int64_t modPow(std::int64_t base, std::int64_t exp, std::int64_t m) 
     return result;
 }
 
-inline std::int64_t modInv(std::int64_t base, std::int64_t m) {
+inline i64 modInv(i64 base, i64 m) {
     base = normalise(base, m);
-    std::int64_t exp = m - 2; // b^-1 is modular congruent with b^m-2 mod m
+    i64 exp = m - 2; // b^-1 is modular congruent with b^m-2 mod m
     return modPow(base, exp, m);
 }
 
-inline std::int64_t stressCPU(std::int64_t x) {
-    std::int64_t temp = (x % (M - 1)) + 1; // Ensure values are in the range [1...M-1]
-    std::int64_t inverse = modInv(temp, M);
+inline i64 stressCPU(i64 x) {
+    i64 temp = (x % (M - 1)) + 1; // Ensure values are in the range [1...M-1]
+    i64 inverse = modInv(temp, M);
     return inverse % M;
 }
 
@@ -57,25 +58,25 @@ inline std::int64_t stressCPU(std::int64_t x) {
  * Graph-transformation BFS algorithm to calculate the transformation orbit over the
  * finite field Z/ZM. Thread safe, so can be called concurrently to do a multi-source BFS.
  */
-inline std::vector<std::int64_t>
-adjBFS(const std::vector<std::vector<std::uint64_t>> &adj, const std::uint64_t start) {
+inline std::vector<i64> adjBFS(const std::vector<std::vector<u64>> &adj,
+                               const u64 start) {
     const std::size_t n = adj.size();
 
     // Track distance and whether a node has been visited (to prevent infinite loops)
     std::vector<uint8_t> visited(n, 0);
-    std::vector<std::int64_t> transformation(n, 0);
+    std::vector<i64> transformation(n, 0);
 
-    std::queue<std::uint64_t> q;
+    std::queue<u64> q;
     q.push(start);
     visited[start] = 1;        // Visit the start
     transformation[start] = 0; // Back to itself = 0
 
     while (!q.empty()) {
-        const std::uint64_t next = q.front();
+        const u64 next = q.front();
         q.pop();
 
-        for (const std::uint64_t &neighbour : adj[next]) {
-            const std::uint64_t idx = neighbour;
+        for (const u64 &neighbour : adj[next]) {
+            const u64 idx = neighbour;
             if (visited[idx] == 1) {
                 continue; // Only process if this is the first time
             }
@@ -103,14 +104,13 @@ struct ThreadJoiner {
  * Multi-threaded wrapper for BFS.
  * Each start point runs BFS independently in a separate thread.
  */
-inline std::vector<std::vector<std::int64_t>>
-multiBFS(const std::vector<std::vector<std::uint64_t>> &adj,
-         const std::vector<std::uint64_t> &starts,
-         std::optional<std::uint64_t> maxThreads = std::nullopt) {
+inline std::vector<std::vector<i64>>
+multiBFS(const std::vector<std::vector<u64>> &adj, const std::vector<u64> &starts,
+         std::optional<u64> maxThreads = std::nullopt) {
     const std::size_t n = starts.size();
-    std::vector<std::vector<std::int64_t>> results(n);
+    std::vector<std::vector<i64>> results(n);
 
-    const std::uint64_t max_threads =
+    const u64 max_threads =
         maxThreads ? std::max(to_uint(1), *maxThreads)
                    : std::max(to_uint(1), to_uint(std::thread::hardware_concurrency()));
     std::queue<std::size_t> q;
@@ -126,7 +126,7 @@ multiBFS(const std::vector<std::vector<std::uint64_t>> &adj,
         for (std::size_t i = 0; i < max_threads; i++) {
             threads.emplace_back([&adj, &results, &qMut, &q, &starts]() {
                 while (true) {
-                    std::uint64_t at;
+                    u64 at;
                     {
                         std::lock_guard lock(qMut);
                         if (q.empty()) {

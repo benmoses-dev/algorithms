@@ -8,51 +8,49 @@
 
 namespace algo::dfs {
 
-using Bridge = std::pair<std::uint64_t, std::uint64_t>;
+using u64 = std::uint64_t;
+using i64 = std::int64_t;
+using Bridge = std::pair<u64, u64>;
 
-template <typename T> constexpr std::uint64_t to_uint(T x) {
+template <typename T> constexpr u64 to_uint(T x) {
     if (x < 0) {
         throw std::runtime_error("Cannot cast a negative to unsigned!");
     }
-    return static_cast<std::uint64_t>(x);
+    return static_cast<u64>(x);
 }
 
-template <typename T> constexpr std::int64_t to_int(T x) {
-    return static_cast<std::int64_t>(x);
-}
+template <typename T> constexpr i64 to_int(T x) { return static_cast<i64>(x); }
 
 /**
  * Store the results of the DFS.
  * This allows us to solve multiple different types of graph/tree traversal problems.
  */
 struct DFSResult {
-    bool hasCycle;                    // Detect cycles in undirected or directed graphs.
-    std::vector<std::int64_t> parent; // Used to recreate the path through the graph.
-    std::vector<std::int64_t> components; // Used for connectivity checks.
-    std::vector<std::int64_t> entry;      // Track the order of processing.
-    std::vector<std::int64_t> exit;       // Used to track ancestors.
-    std::vector<std::int64_t> low; // Used to find the critical components of a graph.
-    std::vector<std::uint64_t>
-        articulationPoints;      // Critical nodes in an undirected graph.
-    std::vector<Bridge> bridges; // Critical edges in an undirected graph.
-    std::vector<std::vector<std::uint64_t>>
-        sccs; // Strongly-connected components in a directed graph.
-    std::stack<std::uint64_t> sccStack;   // Track current component stack.
-    std::vector<uint8_t> onStack;         // Tarjan's SCC algorithm.
-    std::vector<std::int64_t> sccIndex;   // Component ID for each node in Tarjan's.
-    std::vector<std::uint64_t> postOrder; // Track post order of traversal.
-    std::vector<std::uint64_t> topoOrder; // Only useful in a DAG.
+    bool hasCycle;               // Detect cycles in undirected or directed graphs.
+    std::vector<i64> parent;     // Used to recreate the path through the graph.
+    std::vector<i64> components; // Used for connectivity checks.
+    std::vector<i64> entry;      // Track the order of processing.
+    std::vector<i64> exit;       // Used to track ancestors.
+    std::vector<i64> low;        // Used to find the critical components of a graph.
+    std::vector<u64> articulationPoints; // Critical nodes in an undirected graph.
+    std::vector<Bridge> bridges;         // Critical edges in an undirected graph.
+    std::vector<std::vector<u64>>
+        sccs;                     // Strongly-connected components in a directed graph.
+    std::stack<u64> sccStack;     // Track current component stack.
+    std::vector<uint8_t> onStack; // Tarjan's SCC algorithm.
+    std::vector<i64> sccIndex;    // Component ID for each node in Tarjan's.
+    std::vector<u64> postOrder;   // Track post order of traversal.
+    std::vector<u64> topoOrder;   // Only useful in a DAG.
 };
 
 class DFSDriver {
   private:
-    std::int64_t timer;
-    std::int64_t currentComponent;
-    std::int64_t currSCC;
+    i64 timer;
+    i64 currentComponent;
+    i64 currSCC;
 
-    void undirectedDfs(std::vector<std::vector<std::uint64_t>> &adj,
-                       std::vector<uint8_t> &visited, DFSResult &res, std::uint64_t u,
-                       std::int64_t p = -1) {
+    void undirectedDfs(std::vector<std::vector<u64>> &adj, std::vector<uint8_t> &visited,
+                       DFSResult &res, u64 u, i64 p = -1) {
         /**
          * 0 = not visited
          * 1 = visiting
@@ -63,10 +61,10 @@ class DFSDriver {
         res.components[u] = currentComponent; // Flood fill all nodes in the same DFS.
 
         res.entry[u] = res.low[u] = timer++;
-        std::uint64_t children = 0;
+        u64 children = 0;
         bool isArticulation = false;
 
-        for (std::uint64_t v : adj[u]) {
+        for (u64 v : adj[u]) {
             if (p >= 0 && v == to_uint(p)) // Don't go back up the edge.
                 continue;
 
@@ -120,9 +118,8 @@ class DFSDriver {
         res.postOrder.push_back(u);
     }
 
-    void directedDfs(std::vector<std::vector<std::uint64_t>> &adj,
-                     std::vector<uint8_t> &visited, DFSResult &res, std::uint64_t u,
-                     std::int64_t p = -1) {
+    void directedDfs(std::vector<std::vector<u64>> &adj, std::vector<uint8_t> &visited,
+                     DFSResult &res, u64 u, i64 p = -1) {
         /**
          * 0 = not visited
          * 1 = visiting
@@ -139,7 +136,7 @@ class DFSDriver {
         res.sccStack.push(u);
         res.onStack[u] = 1;
 
-        for (std::uint64_t v : adj[u]) {
+        for (u64 v : adj[u]) {
             if (visited[v] == 0) {
                 // Recurse and then update the low-link.
                 directedDfs(adj, visited, res, v, to_int(u));
@@ -154,9 +151,9 @@ class DFSDriver {
 
         if (res.low[u] == res.entry[u]) {
             // Root of SCC - process all strongly connected components in this group.
-            std::vector<std::uint64_t> components;
+            std::vector<u64> components;
             while (!res.sccStack.empty()) {
-                std::uint64_t v = res.sccStack.top();
+                u64 v = res.sccStack.top();
                 res.sccStack.pop();
                 res.onStack[v] = 0;
                 components.push_back(v);
@@ -179,8 +176,7 @@ class DFSDriver {
      * Pass isDirected depending on whether the graph is directed or
      * not.
      */
-    DFSResult runDFS(std::vector<std::vector<std::uint64_t>> &adj,
-                     bool isDirected = false) {
+    DFSResult runDFS(std::vector<std::vector<u64>> &adj, bool isDirected = false) {
         std::size_t n = adj.size();
 
         DFSResult res;
@@ -217,8 +213,8 @@ class DFSDriver {
     /**
      * Re-construct the recursion path using the parent vector.
      */
-    std::vector<std::uint64_t> getPath(std::int64_t u, DFSResult &res) {
-        std::vector<std::uint64_t> path;
+    std::vector<u64> getPath(i64 u, DFSResult &res) {
+        std::vector<u64> path;
         while (u >= 0) {
             path.push_back(to_uint(u));
             u = res.parent[to_uint(u)];
@@ -230,7 +226,7 @@ class DFSDriver {
     /**
      * Is u an ancestor of v?
      */
-    bool isAncestor(std::uint64_t u, std::uint64_t v, const DFSResult &res) {
+    bool isAncestor(u64 u, u64 v, const DFSResult &res) {
         return (res.entry[u] <= res.entry[v]) && (res.exit[v] <= res.exit[u]);
     }
 };

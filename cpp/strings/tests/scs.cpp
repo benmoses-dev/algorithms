@@ -1,6 +1,5 @@
 #include "scs.hpp"
 #include <chrono>
-#include <cstdint>
 #include <iostream>
 #include <string>
 
@@ -26,9 +25,9 @@ int main() {
     std::cout << "Length of string a: " << n << "\n";
     std::cout << "Length of string b: " << m << "\n";
 
-    std::uint64_t p = (std::uint64_t)(m + 1) * (n + 1);
-    std::uint64_t bytes = p * sizeof(std::size_t);
-    std::uint64_t gb = bytes >> 30;
+    std::size_t p = (m + 1) * (n + 1);
+    std::size_t bytes = p * sizeof(std::size_t);
+    std::size_t gb = bytes >> 30;
     std::cout << "This test will use " << gb << " GB of RAM\n";
     if (gb > 4ULL) {
         std::cout << "You will use more than 4GB RAM, aborting..." << "\n";

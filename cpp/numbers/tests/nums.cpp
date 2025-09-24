@@ -12,8 +12,8 @@ int main() {
     {
         // Test 1: Small sieve correctness
         auto primes = sieve(20);
-        std::vector<size_t> expected = {2, 3, 5, 7, 11, 13, 17, 19};
-        for (size_t p : expected) {
+        std::vector<u64> expected = {2, 3, 5, 7, 11, 13, 17, 19};
+        for (u64 p : expected) {
             assert(primes[p] == 1);
         }
         std::cout << "Sieve test (N=20) passed\n";
@@ -21,12 +21,12 @@ int main() {
 
     // Test 2: Large sieve performance
     {
-        ll N = 100'000'000;
+        u64 N = 100'000'000;
         auto start = std::chrono::high_resolution_clock::now();
         auto primes = sieve(N);
         auto end = std::chrono::high_resolution_clock::now();
 
-        int primeCount = std::accumulate(primes.begin(), primes.end(), 0);
+        auto primeCount = std::accumulate(primes.begin(), primes.end(), 0);
         std::cout << "Sieve up to " << N << " found " << primeCount << " primes\n";
         std::cout
             << "Execution time: "
@@ -47,7 +47,7 @@ int main() {
 
     // Test 4: Pascal mid-sized values
     {
-        int N = 60, R = 30;
+        u64 N = 60, R = 30;
         auto start = std::chrono::high_resolution_clock::now();
         auto pt = pascalsTriangle(N, R);
         auto end = std::chrono::high_resolution_clock::now();

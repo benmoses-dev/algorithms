@@ -13,7 +13,7 @@ int main() {
         // 0 -- 1 -- 2
         //      |
         //      3
-        std::vector<std::vector<std::uint64_t>> adj(4);
+        std::vector<std::vector<u64>> adj(4);
         adj[0] = {1};
         adj[1] = {0, 2, 3};
         adj[2] = {1};
@@ -49,7 +49,7 @@ int main() {
 
         // Path reconstruction: 0 -> 1 -> 2
         auto path = dfs.getPath(2, res);
-        assert((path == std::vector<std::uint64_t>{0, 1, 2}));
+        assert((path == std::vector<u64>{0, 1, 2}));
 
         std::cout << "Undirected graph tests passed!\n";
     }
@@ -57,7 +57,7 @@ int main() {
     //  Undirected Graph with Cycle
     {
         // Triangle: 0-1-2-0
-        std::vector<std::vector<std::uint64_t>> adj(3);
+        std::vector<std::vector<u64>> adj(3);
         adj[0] = {1, 2};
         adj[1] = {0, 2};
         adj[2] = {0, 1};
@@ -79,7 +79,7 @@ int main() {
     //  Directed Graph Tests (DAG)
     {
         // 0 -> 1 -> 2 -> 3
-        std::vector<std::vector<std::uint64_t>> adj(4);
+        std::vector<std::vector<u64>> adj(4);
         adj[0] = {1};
         adj[1] = {2};
         adj[2] = {3};
@@ -94,11 +94,11 @@ int main() {
         assert(res.sccs.size() == 4);
 
         // Topological order must be [0,1,2,3]
-        assert((res.topoOrder == std::vector<std::uint64_t>{0, 1, 2, 3}));
+        assert((res.topoOrder == std::vector<u64>{0, 1, 2, 3}));
 
         // Path reconstruction: 0 -> 1 -> 2 -> 3
         auto path = dfs.getPath(3, res);
-        assert((path == std::vector<std::uint64_t>{0, 1, 2, 3}));
+        assert((path == std::vector<u64>{0, 1, 2, 3}));
 
         std::cout << "Directed DAG tests passed!\n";
     }
@@ -107,7 +107,7 @@ int main() {
     {
         // 0 -> 1 -> 2 -> 0  (cycle)
         // 2 -> 3
-        std::vector<std::vector<std::uint64_t>> adj(4);
+        std::vector<std::vector<u64>> adj(4);
         adj[0] = {1};
         adj[1] = {2};
         adj[2] = {0, 3};

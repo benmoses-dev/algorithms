@@ -1,14 +1,14 @@
 #pragma once
 
 #include <cmath>
+#include <cstdint>
 #include <utility>
 #include <vector>
 
 namespace algo::geometry {
 
-using ll = long long;
-using ul = unsigned long;
-using Point = std::pair<int, int>;
+using i64 = std::int64_t;
+using Point = std::pair<i64, i64>;
 using FPoint = std::pair<double, double>;
 using FPolygon = std::vector<FPoint>;
 using Polygon = std::vector<Point>;
@@ -23,11 +23,11 @@ class PointInPolygon {
      * This is signed positive if the point is counter clockwise relative to the two
      * vertices.
      */
-    ll cross(Point a, Point b, Point c) {
-        ll x1 = b.first - a.first;
-        ll y1 = b.second - a.second;
-        ll x2 = c.first - a.first;
-        ll y2 = c.second - a.second;
+    i64 cross(Point a, Point b, Point c) {
+        i64 x1 = b.first - a.first;
+        i64 y1 = b.second - a.second;
+        i64 x2 = c.first - a.first;
+        i64 y2 = c.second - a.second;
         return x1 * y2 - x2 * y1;
     }
 
@@ -46,10 +46,10 @@ class PointInPolygon {
     bool onSegment(Point a, Point b, Point p) {
         if (cross(a, b, p) != 0)
             return false;
-        int minX = std::min(a.first, b.first);
-        int maxX = std::max(a.first, b.first);
-        int minY = std::min(a.second, b.second);
-        int maxY = std::max(a.second, b.second);
+        i64 minX = std::min(a.first, b.first);
+        i64 maxX = std::max(a.first, b.first);
+        i64 minY = std::min(a.second, b.second);
+        i64 maxY = std::max(a.second, b.second);
         return minX <= p.first && p.first <= maxX && minY <= p.second && p.second <= maxY;
     }
 
@@ -71,9 +71,9 @@ class PointInPolygon {
      * vertices.
      */
     bool rcpip(const Polygon &poly, Point p) {
-        ul n = poly.size();
+        std::size_t n = poly.size();
         bool inside = false;
-        for (ul i = 0, j = n - 1; i < n; j = i++) {
+        for (std::size_t i = 0, j = n - 1; i < n; j = i++) {
             Point a = poly[j];
             Point b = poly[i];
             if (onSegment(a, b, p)) {
@@ -82,7 +82,7 @@ class PointInPolygon {
             bool aboveA = a.second < p.second;
             bool aboveB = b.second < p.second;
             if (aboveA ^ aboveB) { // p is horizontal to ab
-                ll orient = cross(a, b, p);
+                i64 orient = cross(a, b, p);
                 bool asc = a.second < b.second;
                 bool leftTurn = orient > 0;
                 if (asc == leftTurn) { // p is to the left of ab
@@ -98,9 +98,9 @@ class PointInPolygon {
      * version below. Assumes vertices are given in CCW winding order.
      */
     bool wnpip(const FPolygon &poly, FPoint p, bool ccw) {
-        int wn = 0;
-        ul n = poly.size();
-        for (ul i = 0; i < n; ++i) {
+        i64 wn = 0;
+        std::size_t n = poly.size();
+        for (std::size_t i = 0; i < n; ++i) {
             FPoint a = poly[i];
             FPoint b = poly[(i + 1) % n];
             if (onSegment(a, b, p)) {
@@ -131,9 +131,9 @@ class PointInPolygon {
      * self-intersections.
      */
     bool wnpip(const Polygon &poly, Point p, bool ccw) {
-        int wn = 0;
-        ul n = poly.size();
-        for (ul i = 0; i < n; i++) {
+        i64 wn = 0;
+        std::size_t n = poly.size();
+        for (std::size_t i = 0; i < n; i++) {
             Point a = poly[i];
             Point b = poly[(i + 1) % n];
             if (onSegment(a, b, p)) {
@@ -141,7 +141,7 @@ class PointInPolygon {
             }
             bool aBelow = a.second <= p.second;
             bool bAbove = b.second > p.second;
-            ll c = cross(a, b, p);
+            i64 c = cross(a, b, p);
             bool leftTurn = c > 0;
             bool rightTurn = c < 0;
             if (aBelow && bAbove && ((leftTurn && ccw) || (rightTurn && !ccw))) {
@@ -163,11 +163,11 @@ class PointInPolygon {
      * Assumes vertices are given in CCW winding order.
      */
     bool simplepicp(const Polygon &poly, Point p) {
-        ul n = poly.size();
-        for (ul i = 0; i < n; ++i) {
+        std::size_t n = poly.size();
+        for (std::size_t i = 0; i < n; ++i) {
             Point a = poly[i];
             Point b = poly[(i + 1) % n];
-            ll c = cross(a, b, p);
+            i64 c = cross(a, b, p);
             // Assuming CCW order. Flip conditionals if CW.
             if (c < 0) {
                 return false;
@@ -185,8 +185,8 @@ class PointInPolygon {
      * Assumes vertices are given in CCW winding order.
      */
     bool simplepicp(const FPolygon &poly, FPoint p) {
-        ul n = poly.size();
-        for (ul i = 0; i < n; ++i) {
+        std::size_t n = poly.size();
+        for (std::size_t i = 0; i < n; ++i) {
             FPoint a = poly[i];
             FPoint b = poly[(i + 1) % n];
             double c = cross(a, b, p);
@@ -209,7 +209,7 @@ class PointInPolygon {
      * Really only necessary for large n.
      */
     bool binarypicp(const Polygon &poly, Point p) {
-        ul n = poly.size();
+        std::size_t n = poly.size();
         Point p0 = poly[0];
         if (cross(p0, poly[1], p) < 0) { // > 0 if CW.
             return false;
@@ -217,10 +217,10 @@ class PointInPolygon {
         if (cross(p0, poly[n - 1], p) > 0) { // < 0 if CW.
             return false;
         }
-        ul low = 1;
-        ul high = n - 1;
+        std::size_t low = 1;
+        std::size_t high = n - 1;
         while (high - low > 1) {
-            ul mid = (low + high) / 2;
+            std::size_t mid = (low + high) / 2;
             if (cross(p0, poly[mid], p) > 0) { // < 0 if CW.
                 low = mid;
             } else {
@@ -237,7 +237,7 @@ class PointInPolygon {
      * Assumes vertices are given in CCW winding order.
      */
     bool binarypicp(const FPolygon &poly, FPoint p) {
-        ul n = poly.size();
+        std::size_t n = poly.size();
         FPoint p0 = poly[0];
         if (cross(p0, poly[1], p) < -EPSILON) { // Use > EPSILON if CW.
             return false;
@@ -245,10 +245,10 @@ class PointInPolygon {
         if (cross(p0, poly[n - 1], p) > EPSILON) { // Use < -EPSILON if CW.
             return false;
         }
-        ul low = 1;
-        ul high = n - 1;
+        std::size_t low = 1;
+        std::size_t high = n - 1;
         while (high - low > 1) {
-            ul mid = (low + high) / 2;
+            std::size_t mid = (low + high) / 2;
             if (cross(p0, poly[mid], p) > EPSILON) { // Use < -EPSILON if CW.
                 low = mid;
             } else {

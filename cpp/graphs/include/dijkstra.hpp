@@ -9,24 +9,23 @@
 
 namespace algo::bfs {
 
-using edge = std::pair<std::uint64_t, std::uint64_t>;
+using u64 = std::uint64_t;
+using i64 = std::int64_t;
+using edge = std::pair<u64, u64>;
 
-template <typename T> constexpr std::uint64_t to_uint(T x) {
+template <typename T> constexpr u64 to_uint(T x) {
     if (x < 0) {
         throw std::runtime_error("Cannot cast a negative to unsigned!");
     }
-    return static_cast<std::uint64_t>(x);
+    return static_cast<u64>(x);
 }
 
-template <typename T> constexpr std::int64_t to_int(T x) {
-    return static_cast<std::int64_t>(x);
-}
+template <typename T> constexpr i64 to_int(T x) { return static_cast<i64>(x); }
 
-inline std::vector<std::uint64_t> dijkstra(std::vector<std::vector<edge>> &adjacencyList,
-                                           std::vector<std::int64_t> &prev,
-                                           std::uint64_t start) {
+inline std::vector<u64> dijkstra(std::vector<std::vector<edge>> &adjacencyList,
+                                 std::vector<i64> &prev, u64 start) {
     std::size_t n = adjacencyList.size();
-    std::vector<std::uint64_t> distances(n, UINT64_MAX); // Non-negative weights
+    std::vector<u64> distances(n, UINT64_MAX); // Non-negative weights
 
     // Queue of pair<weight, index> - sorted by smallest distance (min heap)
     std::priority_queue<edge, std::vector<edge>, std::greater<edge>> pq;
@@ -42,8 +41,8 @@ inline std::vector<std::uint64_t> dijkstra(std::vector<std::vector<edge>> &adjac
             continue; // Stale value on queue
 
         for (const auto &[index, weight] : adjacencyList[i]) {
-            std::uint64_t currDist = distances[index];
-            std::uint64_t newDist = d + weight;
+            u64 currDist = distances[index];
+            u64 newDist = d + weight;
             if (newDist < currDist) {
                 /**
                  * Going to the neighbour through the current node is better
@@ -59,10 +58,9 @@ inline std::vector<std::uint64_t> dijkstra(std::vector<std::vector<edge>> &adjac
     return distances;
 }
 
-inline std::vector<std::uint64_t> reconstructPath(std::uint64_t end,
-                                                  const std::vector<std::int64_t> &prev) {
-    std::vector<std::uint64_t> path;
-    std::uint64_t curr = end;
+inline std::vector<u64> reconstructPath(u64 end, const std::vector<i64> &prev) {
+    std::vector<u64> path;
+    u64 curr = end;
     while (true) {
         path.push_back(curr);
         if (prev[curr] < 0)
