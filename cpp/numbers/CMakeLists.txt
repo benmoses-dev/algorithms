@@ -3,9 +3,6 @@ project(NUMS LANGUAGES CXX)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-set(CMAKE_C_COMPILER gcc)
-set(CMAKE_CXX_COMPILER g++)
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS ON)
@@ -35,5 +32,7 @@ if(FAST_BUILD)
 endif()
 
 add_executable(nums tests/nums.cpp)
+add_executable(regression tests/regression.cpp)
 
 target_include_directories(nums PRIVATE include)
+target_include_directories(regression PRIVATE include)
