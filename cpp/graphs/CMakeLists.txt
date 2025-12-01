@@ -45,3 +45,15 @@ target_include_directories(dijkstra PRIVATE include)
 
 add_executable(dfs tests/dfs.cpp)
 target_include_directories(dfs PRIVATE include)
+
+add_executable(dsu tests/dsu.cpp)
+target_include_directories(dsu PRIVATE include)
+
+add_executable(dinic tests/dinic.cpp)
+target_include_directories(dinic PRIVATE include)
+
+add_executable(mst tests/mst.cpp)
+target_include_directories(mst PRIVATE include)
+
+add_executable(hungarian tests/hungarian.cpp)
+target_include_directories(hungarian PRIVATE include)
