@@ -57,3 +57,6 @@ target_include_directories(mst PRIVATE include)
 
 add_executable(hungarian tests/hungarian.cpp)
 target_include_directories(hungarian PRIVATE include)
+
+add_executable(mcmf tests/mcmf.cpp)
+target_include_directories(mcmf PRIVATE include)

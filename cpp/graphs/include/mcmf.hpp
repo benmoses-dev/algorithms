@@ -74,6 +74,9 @@ class MinCostMaxFlow {
     }
 
     std::pair<ll, ll> solve(const std::size_t source, const std::size_t sink) {
+        if (source == sink) {
+            return {0, 0};
+        }
         ll totalFlow = 0;
         ll totalCost = 0;
         while (dijkstra(source, sink)) {
