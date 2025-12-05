@@ -7,6 +7,25 @@ namespace algo::numbers {
 
 using u8 = std::uint8_t;
 using u64 = std::uint64_t;
+using ll = long long;
+
+inline bool isPrime(ll n) {
+    if (n <= 1) {
+        return false;
+    }
+    if (n <= 3) {
+        return true;
+    }
+    if (n % 2 == 0 || n % 3 == 0) {
+        return false;
+    }
+    for (ll i = 5; i <= n / i; i += 6) {
+        if (n % i == 0 || n % (i + 2) == 0) {
+            return false;
+        }
+    }
+    return true;
+}
 
 inline std::vector<u8> sieve(u64 N) {
     std::vector<u8> isPrime(N + 1, 1);
