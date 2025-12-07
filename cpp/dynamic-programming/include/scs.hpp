@@ -4,30 +4,32 @@
 #include <string>
 #include <vector>
 
-namespace algo::strings {
+namespace algo::dp {
 
 /**
  * Build up a DP recurrence based on the fact that the current shortest supersequence
  * depends on whether we can merge the two latest characters or not, and on the length
  * of the shortest supersequence found so far.
  */
-inline std::string shortestSupersequence(std::string a, std::string b) {
-    std::size_t m = a.size();
-    std::size_t n = b.size();
+inline std::string shortestSupersequence(const std::string a, const std::string b) {
+    const std::size_t m = a.size();
+    const std::size_t n = b.size();
 
     std::vector<std::vector<std::size_t>> dp(m + 1, std::vector<std::size_t>(n + 1));
 
-    for (std::size_t i = 0; i <= m; i++)
+    for (std::size_t i = 0; i <= m; i++) {
         dp[i][0] = i;
-    for (std::size_t j = 0; j <= n; j++)
+    }
+    for (std::size_t j = 0; j <= n; j++) {
         dp[0][j] = j;
+    }
 
     /**
      * Compare characters from b to characters from a (in increasing length)
      * Recurrence:
      * let scs(a, b) =
-     * a[i - 1] == b[j -1] => scs(a[i - 1], b[j - 1]) + 1
-     * a[i - 1] != b[j -1] => min(scs(a[i - 1], b[j]), scs(a[i], b[j - 1])) + 1
+     * a[i - 1] == b[j - 1] => scs(a[i - 1], b[j - 1]) + 1
+     * a[i - 1] != b[j - 1] => min(scs(a[i - 1], b[j]), scs(a[i], b[j - 1])) + 1
      */
     for (std::size_t i = 1; i <= m; i++)
         for (std::size_t j = 1; j <= n; j++)
@@ -69,9 +71,9 @@ inline std::string shortestSupersequence(std::string a, std::string b) {
         j--;
     }
 
-    // We built in reserve, so we need to reverse the reversed!
+    // We built in reserve, so we need to reverse the reversed
     reverse(result.begin(), result.end());
     return result;
 }
 
-} // namespace algo::strings
+} // namespace algo::dp

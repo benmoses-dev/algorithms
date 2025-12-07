@@ -6,7 +6,7 @@ namespace algo::geometry {
 
 const double EPSILON = 1e-9;
 
-inline bool equal(double a, double b) { return fabs(a - b) < EPSILON; }
+inline bool equal(const double a, const double b) { return fabs(a - b) < EPSILON; }
 
 struct Vec {
     double x, y;
@@ -45,7 +45,7 @@ struct Segment {
     Point end;
     Vec vec;
 
-    Segment(Point s, Point e)
+    Segment(const Point s, const Point e)
         : start(s), end(e), vec({end.x - start.x, end.y - start.y}) {};
 
     /**
@@ -68,20 +68,20 @@ struct Segment {
      *   => u = cross(startDiff, vone) / cross(vone, vtwo)
      */
     bool intersects(const Segment &other, Point &intersection) const {
-        double c = vec.cross(other.vec);
+        const double c = vec.cross(other.vec);
         if (equal(c, 0)) {
             return false; // Segments are parallel or colinear
         }
-        Vec startDiff = other.start.vec(start);
-        double t = startDiff.cross(other.vec) / c;
-        double u = startDiff.cross(vec) / c;
+        const Vec startDiff = other.start.vec(start);
+        const double t = startDiff.cross(other.vec) / c;
+        const double u = startDiff.cross(vec) / c;
         // Both t and u must be in [0, 1] for the intersection to lie on both segments
         if (t < 0 - EPSILON || t > 1 + EPSILON || u < 0 - EPSILON || u > 1 + EPSILON) {
             return false;
         }
         // Get the intersection point using parametric form: P(t) = start1 + t * vone
-        double distanceX = t * vec.x;
-        double distanceY = t * vec.y;
+        const double distanceX = t * vec.x;
+        const double distanceY = t * vec.y;
         intersection = {start.x + distanceX, start.y + distanceY};
         return true;
     }

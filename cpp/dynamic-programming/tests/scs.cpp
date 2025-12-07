@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 
-using namespace algo::strings;
+using namespace algo::dp;
 
 int main() {
     std::string a, b;

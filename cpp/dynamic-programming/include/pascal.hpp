@@ -3,14 +3,14 @@
 #include <cstdint>
 #include <vector>
 
-namespace algo::numbers {
+namespace algo::dp {
 
 using u64 = std::uint64_t;
 
 /**
  * Use Pascal's triangle to compute binomial coefficients.
  */
-inline std::vector<std::vector<u64>> pascalsTriangle(u64 maxN, u64 maxR) {
+inline std::vector<std::vector<u64>> pascalsTriangle(const u64 maxN, const u64 maxR) {
     std::vector<std::vector<u64>> pt(maxN + 1, std::vector<u64>(maxR + 1, 0));
     for (std::size_t i = 0; i <= maxN; i++) {
         pt[i][0] = 1;
@@ -21,4 +21,4 @@ inline std::vector<std::vector<u64>> pascalsTriangle(u64 maxN, u64 maxR) {
     return pt;
 }
 
-} // namespace algo::numbers
+} // namespace algo::dp

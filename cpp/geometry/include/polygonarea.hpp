@@ -16,14 +16,15 @@ using ld = long double;
  */
 inline ld irregularArea(const Polygon &c) {
     ld sum = 0.0;
-    std::size_t n = c.size();
-    if (n < 3)
+    const std::size_t n = c.size();
+    if (n < 3) {
         return 0.0;
+    }
     for (std::size_t i = 0; i < n; i++) {
-        ld Xi = c[i].first;
-        ld Yi = c[i].second;
-        ld Ynext = c[(i + 1) % n].second;
-        ld Xnext = c[(i + 1) % n].first;
+        const ld Xi = c[i].first;
+        const ld Yi = c[i].second;
+        const ld Ynext = c[(i + 1) % n].second;
+        const ld Xnext = c[(i + 1) % n].first;
         sum += (Xi * Ynext) - (Xnext * Yi);
     }
     return std::fabs(sum) / 2.0;
@@ -33,9 +34,10 @@ inline ld irregularArea(const Polygon &c) {
  * For a regular polygon with n sides of length l:
  * Area = (n * l * l) / (4.0 * tan(pi / n))
  */
-inline ld regularArea(std::size_t n, std::size_t l) {
-    if (n < 3)
+inline ld regularArea(const std::size_t n, const std::size_t l) {
+    if (n < 3) {
         return 0.0;
+    }
     return (n * l * l) / (4.0 * tanl(M_PI / static_cast<ld>(n)));
 }
 

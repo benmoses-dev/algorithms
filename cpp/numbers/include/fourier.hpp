@@ -6,6 +6,8 @@
 #include <numbers>
 #include <vector>
 
+namespace algo::numbers {
+
 using u64 = std::uint64_t;
 const double TAU = 2 * std::numbers::pi;
 
@@ -50,8 +52,8 @@ fftRec(const std::vector<std::complex<double>> &in, const bool inverse) {
         }
         O.emplace_back(in[i]);
     }
-    auto even = fftRec(E, inverse);
-    auto odd = fftRec(O, inverse);
+    const auto even = fftRec(E, inverse);
+    const auto odd = fftRec(O, inverse);
     std::vector<std::complex<double>> spectrum(N);
     for (u64 k = 0; k < (N / 2); k++) {
         const double freq = static_cast<double>(k) / static_cast<double>(N);
@@ -91,3 +93,5 @@ inline std::vector<std::complex<double>> fft(std::vector<std::complex<double>> &
     }
     return spectrum;
 }
+
+} // namespace algo::numbers

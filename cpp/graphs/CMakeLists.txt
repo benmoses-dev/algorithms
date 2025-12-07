@@ -35,28 +35,52 @@ if(FAST_BUILD)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -DNDEBUG -pthread")
 endif()
 
-add_executable(transform tests/transform.cpp)
-add_executable(transform_stress tests/transform_stress.cpp)
-target_include_directories(transform PRIVATE include)
-target_include_directories(transform_stress PRIVATE include)
+# Try to find system Google Test first
+find_package(GTest QUIET)
 
-add_executable(dijkstra tests/dijkstra.cpp)
-target_include_directories(dijkstra PRIVATE include)
+if(GTest_FOUND)
+    message(STATUS "Using system Google Test")
+else()
+    message(STATUS "System Google Test not found, fetching from GitHub...")
+    include(FetchContent)
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.17.0
+    )
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+endif()
 
-add_executable(dfs tests/dfs.cpp)
-target_include_directories(dfs PRIVATE include)
+# Enable testing
+enable_testing()
 
-add_executable(dsu tests/dsu.cpp)
-target_include_directories(dsu PRIVATE include)
+include(GoogleTest)
 
-add_executable(dinic tests/dinic.cpp)
-target_include_directories(dinic PRIVATE include)
+# Original executables
+add_executable(dijkstra_test tests/dijkstra_test.cpp)
+target_include_directories(dijkstra_test PRIVATE include)
+# Google Test executable
+target_link_libraries(dijkstra_test PRIVATE GTest::gtest GTest::gtest_main)
+# Register the test with CTest
+gtest_discover_tests(dijkstra_test)
 
-add_executable(mst tests/mst.cpp)
-target_include_directories(mst PRIVATE include)
+add_executable(dfs_test tests/dfs_test.cpp)
+target_include_directories(dfs_test PRIVATE include)
+target_link_libraries(dfs_test PRIVATE GTest::gtest GTest::gtest_main)
+gtest_discover_tests(dfs_test)
 
-add_executable(hungarian tests/hungarian.cpp)
-target_include_directories(hungarian PRIVATE include)
+add_executable(dinic_test tests/dinic_test.cpp)
+target_include_directories(dinic_test PRIVATE include)
+target_link_libraries(dinic_test PRIVATE GTest::gtest GTest::gtest_main)
+gtest_discover_tests(dinic_test)
 
-add_executable(mcmf tests/mcmf.cpp)
-target_include_directories(mcmf PRIVATE include)
+add_executable(dsu_test tests/dsu_test.cpp)
+target_include_directories(dsu_test PRIVATE include)
+target_link_libraries(dsu_test PRIVATE GTest::gtest GTest::gtest_main)
+gtest_discover_tests(dsu_test)
+
+add_executable(hungarian_test tests/hungarian_test.cpp)
+target_include_directories(hungarian_test PRIVATE include)
+target_link_libraries(hungarian_test PRIVATE GTest::gtest GTest::gtest_main)
+gtest_discover_tests(hungarian_test)
