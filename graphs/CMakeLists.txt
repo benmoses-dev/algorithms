@@ -84,3 +84,13 @@ add_executable(hungarian_test tests/hungarian_test.cpp)
 target_include_directories(hungarian_test PRIVATE include)
 target_link_libraries(hungarian_test PRIVATE GTest::gtest GTest::gtest_main)
 gtest_discover_tests(hungarian_test)
+
+add_executable(mcmf_test tests/mcmf_test.cpp)
+target_include_directories(mcmf_test PRIVATE include)
+target_link_libraries(mcmf_test PRIVATE GTest::gtest GTest::gtest_main)
+gtest_discover_tests(mcmf_test)
+
+add_executable(mst_test tests/mst_test.cpp)
+target_include_directories(mst_test PRIVATE include)
+target_link_libraries(mst_test PRIVATE GTest::gtest GTest::gtest_main)
+gtest_discover_tests(mst_test)
