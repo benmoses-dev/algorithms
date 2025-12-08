@@ -1,6 +1,7 @@
 #pragma once
 
 #include <numeric>
+#include <stack>
 #include <vector>
 
 namespace algo::dsu {
@@ -59,6 +60,53 @@ class DSU {
     ll getSum(const std::size_t i) { return sums[find(i)]; }
 
     std::size_t getComponents() const { return numComponents; }
+};
+
+class DSURollback {
+  private:
+    std::vector<std::size_t> parent, rank;
+    std::stack<std::pair<std::size_t *, std::size_t>> history; // (pointer, old value)
+
+    void save(std::size_t *ptr) { history.push({ptr, *ptr}); }
+
+  public:
+    DSURollback(const std::size_t n) : parent(n), rank(n, 0) {
+        iota(parent.begin(), parent.end(), 0);
+    }
+
+    std::size_t find(const std::size_t x) const {
+        // No path compression (but can be const)
+        return parent[x] == x ? x : find(parent[x]);
+    }
+
+    bool unite(std::size_t x, std::size_t y) {
+        x = find(x);
+        y = find(y);
+        if (x == y) {
+            return false;
+        }
+        if (rank[x] < rank[y]) {
+            std::swap(x, y);
+        }
+        save(&parent[y]);
+        parent[y] = x;
+        if (rank[x] == rank[y]) {
+            save(&rank[x]);
+            rank[x]++;
+        }
+        return true;
+    }
+
+    void rollback(const std::size_t checkpointSize) {
+        // Undo operations until history.size() == checkpointSize
+        while (history.size() > checkpointSize) {
+            auto [ptr, oldVal] = history.top();
+            history.pop();
+            *ptr = oldVal;
+        }
+    }
+
+    std::size_t checkpoint() const { return history.size(); }
 };
 
 } // namespace algo::dsu
