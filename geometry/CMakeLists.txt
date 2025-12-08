@@ -35,11 +35,37 @@ if(FAST_BUILD)
     set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -DNDEBUG -pthread")
 endif()
 
-add_executable(intersections tests/intersections.cpp)
-target_include_directories(intersections PRIVATE include)
+# Try to find system Google Test first
+find_package(GTest QUIET)
 
-add_executable(pointinpolygon tests/pointinpolygon.cpp)
-target_include_directories(pointinpolygon PRIVATE include)
+if(GTest_FOUND)
+    message(STATUS "Using system Google Test")
+else()
+    message(STATUS "System Google Test not found, fetching from GitHub...")
+    include(FetchContent)
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.17.0
+    )
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
+endif()
 
-add_executable(polygonarea tests/polygonarea.cpp)
-target_include_directories(polygonarea PRIVATE include)
+# Enable testing
+enable_testing()
+
+include(GoogleTest)
+
+# Original executables
+add_executable(intersections_test tests/intersections_test.cpp)
+target_include_directories(intersections_test PRIVATE include)
+# Google Test executable
+target_link_libraries(intersections_test PRIVATE GTest::gtest GTest::gtest_main)
+# Register the test with CTest
+gtest_discover_tests(intersections_test)
+
+add_executable(polygon_test tests/polygon_test.cpp)
+target_include_directories(polygon_test PRIVATE include)
+target_link_libraries(polygon_test PRIVATE GTest::gtest GTest::gtest_main)
+gtest_discover_tests(polygon_test)
