@@ -3,7 +3,7 @@
 #include <queue>
 #include <vector>
 
-namespace algo::bfs {
+namespace algo::graph {
 
 /**
  * Generic BFS algorithm.

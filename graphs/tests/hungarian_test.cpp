@@ -1,7 +1,7 @@
 #include "hungarian.hpp"
 #include <gtest/gtest.h>
 
-using namespace algo::flow;
+using namespace algo::graph;
 
 class HungarianTest : public ::testing::Test {
   protected:

@@ -6,7 +6,10 @@ A C++ algorithm library focused on performance benchmarking and multi-threaded i
 
 ### Data Structures
 - Fenwick tree (BIT)
+- Segment tree
+- Sparse table
 - Teque (triple-ended queue)
+- Trie
 
 ### Dynamic Programming
 - Knapsack

@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <gtest/gtest.h>
 
-using namespace algo::flow;
+using namespace algo::graph;
 
 class DinicTest : public ::testing::Test {
   protected:

@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace algo::flow {
+namespace algo::graph {
 
 using ll = long long;
 

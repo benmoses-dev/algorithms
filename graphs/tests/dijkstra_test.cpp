@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-using namespace algo::bfs;
+using namespace algo::graph;
 
 class DijkstraTest : public ::testing::Test {
   protected:

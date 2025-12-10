@@ -1,7 +1,7 @@
 #include "mcmf.hpp"
 #include <gtest/gtest.h>
 
-using namespace algo::flow;
+using namespace algo::graph;
 
 class MCMFTest : public ::testing::Test {
   protected:

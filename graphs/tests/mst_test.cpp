@@ -1,7 +1,7 @@
 #include "mst.hpp"
 #include <gtest/gtest.h>
 
-using namespace algo::mst;
+using namespace algo::graph;
 
 class MSTTest : public ::testing::Test {
   protected:

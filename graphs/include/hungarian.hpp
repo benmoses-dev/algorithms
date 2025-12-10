@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace algo::flow {
+namespace algo::graph {
 
 const int INF = std::numeric_limits<int>::max();
 
@@ -108,4 +108,4 @@ inline HungarianResult hungarian(const std::vector<std::vector<int>> &input) {
     return HungarianResult{assignment, cost, count};
 }
 
-} // namespace algo::flow
+} // namespace algo::graph

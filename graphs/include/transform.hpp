@@ -9,7 +9,7 @@
 #include <thread>
 #include <vector>
 
-namespace algo::bfs {
+namespace algo::graph {
 
 using u64 = std::uint64_t;
 using i64 = std::int64_t;
@@ -145,4 +145,4 @@ multiBFS(const std::vector<std::vector<u64>> &adj, const std::vector<u64> &start
     return results;
 }
 
-} // namespace algo::bfs
+} // namespace algo::graph

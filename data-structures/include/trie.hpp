@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 
-namespace algo::trie {
+namespace algo::ds {
 
 struct TrieNode {
     std::map<char, TrieNode *> children;
@@ -66,10 +66,9 @@ class BinaryTrie {
         int result = 0;
         for (int i = 30; i >= 0; i--) {
             const int bit = (num >> i) & 1;
-            // Try to go opposite direction for max XOR
             const int oppositeBit = 1 - bit;
             if (curr->child[oppositeBit]) {
-                result |= (1 << i); // This bit will be 1 in XOR
+                result |= (1 << i);
                 curr = curr->child[oppositeBit];
             } else {
                 curr = curr->child[bit];
@@ -79,4 +78,4 @@ class BinaryTrie {
     }
 };
 
-} // namespace algo::trie
+} // namespace algo::ds

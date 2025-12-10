@@ -4,7 +4,7 @@
 #include <stack>
 #include <vector>
 
-namespace algo::dsu {
+namespace algo::graph {
 
 using ll = long long;
 
@@ -109,4 +109,4 @@ class DSURollback {
     std::size_t checkpoint() const { return history.size(); }
 };
 
-} // namespace algo::dsu
+} // namespace algo::graph

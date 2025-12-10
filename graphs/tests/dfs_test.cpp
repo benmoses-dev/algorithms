@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 #include <vector>
 
-using namespace algo::dfs;
+using namespace algo::graph;
 
 class DFSTest : public ::testing::Test {
   protected:

@@ -6,7 +6,7 @@
 #include <queue>
 #include <vector>
 
-namespace algo::flow {
+namespace algo::graph {
 
 using ll = long long;
 
@@ -154,4 +154,4 @@ class MinCostMaxFlow {
     }
 };
 
-} // namespace algo::flow
+} // namespace algo::graph

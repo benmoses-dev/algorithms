@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace algo::bfs {
+namespace algo::graph {
 
 using u64 = std::uint64_t;
 using i64 = std::int64_t;

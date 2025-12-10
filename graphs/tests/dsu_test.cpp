@@ -1,7 +1,7 @@
 #include "dsu.hpp"
 #include <gtest/gtest.h>
 
-using namespace algo::dsu;
+using namespace algo::graph;
 
 class DSUTest : public ::testing::Test {
   protected:

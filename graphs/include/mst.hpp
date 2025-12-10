@@ -5,7 +5,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace algo::mst {
+namespace algo::graph {
 
 using ll = long long;
 

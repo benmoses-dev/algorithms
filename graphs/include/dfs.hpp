@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <vector>
 
-namespace algo::dfs {
+namespace algo::graph {
 
 using u64 = std::uint64_t;
 using i64 = std::int64_t;
