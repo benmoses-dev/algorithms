@@ -69,3 +69,8 @@ add_executable(polygon_test tests/polygon_test.cpp)
 target_include_directories(polygon_test PRIVATE include)
 target_link_libraries(polygon_test PRIVATE GTest::gtest GTest::gtest_main)
 gtest_discover_tests(polygon_test)
+
+add_executable(polygonarea_test tests/polygonarea_test.cpp)
+target_include_directories(polygonarea_test PRIVATE include)
+target_link_libraries(polygonarea_test PRIVATE GTest::gtest GTest::gtest_main)
+gtest_discover_tests(polygonarea_test)
