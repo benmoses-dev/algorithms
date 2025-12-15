@@ -65,3 +65,7 @@ target_link_libraries(fenwick_test PRIVATE GTest::gtest GTest::gtest_main)
 # Register the test with CTest
 gtest_discover_tests(fenwick_test)
 
+add_executable(segment_tree_test tests/segment_tree_test.cpp)
+target_include_directories(segment_tree_test PRIVATE include)
+target_link_libraries(segment_tree_test PRIVATE GTest::gtest GTest::gtest_main)
+gtest_discover_tests(segment_tree_test)

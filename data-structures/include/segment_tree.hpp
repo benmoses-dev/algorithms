@@ -10,131 +10,167 @@ namespace algo::ds {
 
 using ll = long long;
 
-enum class Operation { SUM, MIN, MAX, GCD };
-
 /**
- * Segment Tree with Lazy Propagation
+ * Segment Tree for Range Sum Queries
  *
  * Supports:
- * - SUM: Range sum queries + range addition updates
- * - MIN: Range min queries + range set updates
- * - MAX: Range max queries + range set updates
- * - GCD: Range GCD queries + point updates only
+ * - Range addition updates: a[i] += v
+ * - Range sum queries
  *
- * Time: O(log n) per query/update
+ * Time: O(log n) per operation
  * Space: O(n)
  */
-class SegmentTree {
+class SegmentTreeSum {
   private:
     std::vector<ll> tree;
     std::vector<ll> lazy;
-    std::vector<bool> lazySet; // Track if lazy is a "set" operation
-    const int n;
-    const Operation op;
+    ll n;
 
-    static int validateSize(const int size) {
+    static ll validateSize(const ll size) {
         if (size <= 0) {
             throw std::invalid_argument("Segment tree size must be positive");
         }
         return size;
     }
 
-    ll identity() const noexcept {
-        switch (op) {
-        case Operation::SUM:
-            return 0;
-        case Operation::MIN:
-            return std::numeric_limits<ll>::max();
-        case Operation::MAX:
-            return std::numeric_limits<ll>::min();
-        case Operation::GCD:
-            return 0;
-        }
-        return 0;
-    }
-
-    ll merge(const ll a, const ll b) const noexcept {
-        switch (op) {
-        case Operation::SUM:
-            return a + b;
-        case Operation::MIN:
-            return std::min(a, b);
-        case Operation::MAX:
-            return std::max(a, b);
-        case Operation::GCD:
-            return std::gcd(a, b);
-        }
-        return 0;
-    }
-
-    void applyLazy(const int node, const int start, const int end, const ll value) {
-        if (op == Operation::SUM) {
-            tree[node] += value * (end - start + 1);
-        } else {
-            // MIN/MAX/GCD: set operation
-            tree[node] = value;
-        }
-    }
-
-    void propagate(const int node, const int start, const int end) {
-        if (lazy[node] == 0 && !lazySet[node]) {
-            return;
-        }
-        applyLazy(node, start, end, lazy[node]);
-        if (start != end) {
-            if (op == Operation::SUM) {
-                lazy[2 * node] += lazy[node];
-                lazy[2 * node + 1] += lazy[node];
-            } else {
-                lazy[2 * node] = lazy[node];
-                lazy[2 * node + 1] = lazy[node];
-                lazySet[2 * node] = true;
-                lazySet[2 * node + 1] = true;
-            }
-        }
-        lazy[node] = 0;
-        lazySet[node] = false;
-    }
-
-    void build(const std::vector<ll> &arr, const int node, const int start,
-               const int end) {
+    void build(const std::vector<ll> &arr, const ll node, const ll start, const ll end) {
         if (start == end) {
             tree[node] = arr[start];
         } else {
-            const int mid = (start + end) / 2;
+            const ll mid = (start + end) / 2;
+            build(arr, 2 * node, start, mid);
+            build(arr, 2 * node + 1, mid + 1, end);
+            tree[node] = tree[2 * node] + tree[2 * node + 1];
+        }
+    }
+
+    void applyLazy(const ll node, const ll start, const ll end, const ll value) {
+        tree[node] += value * (end - start + 1);
+        lazy[node] += value;
+    }
+
+    void propagate(const ll node, const ll start, const ll end) {
+        if (lazy[node] == 0 || start == end) {
+            return;
+        }
+        const ll mid = (start + end) / 2;
+        applyLazy(2 * node, start, mid, lazy[node]);
+        applyLazy(2 * node + 1, mid + 1, end, lazy[node]);
+        lazy[node] = 0;
+    }
+
+    void updateRange(const ll node, const ll start, const ll end, const ll L, const ll R,
+                     const ll val) {
+        if (R < start || end < L) {
+            return;
+        }
+        if (L <= start && end <= R) {
+            applyLazy(node, start, end, val);
+            return;
+        }
+        propagate(node, start, end);
+        const ll mid = (start + end) / 2;
+        updateRange(2 * node, start, mid, L, R, val);
+        updateRange(2 * node + 1, mid + 1, end, L, R, val);
+        tree[node] = tree[2 * node] + tree[2 * node + 1];
+    }
+
+    ll queryRange(const ll node, const ll start, const ll end, const ll L, const ll R) {
+        if (R < start || end < L) {
+            return 0;
+        }
+        if (L <= start && end <= R) {
+            return tree[node];
+        }
+        propagate(node, start, end);
+        const ll mid = (start + end) / 2;
+        return queryRange(2 * node, start, mid, L, R) +
+               queryRange(2 * node + 1, mid + 1, end, L, R);
+    }
+
+  public:
+    explicit SegmentTreeSum(const std::vector<ll> &arr)
+        : n(validateSize(static_cast<ll>(arr.size()))) {
+        tree.assign(4 * n, 0);
+        lazy.assign(4 * n, 0);
+        build(arr, 1, 0, n - 1);
+    }
+
+    void update(const ll L, const ll R, const ll val) {
+        if (L < 0 || R >= n || L > R) {
+            throw std::out_of_range("Update range out of bounds");
+        }
+        updateRange(1, 0, n - 1, L, R, val);
+    }
+
+    ll query(const ll L, const ll R) {
+        if (L < 0 || R >= n || L > R) {
+            throw std::out_of_range("Query range out of bounds");
+        }
+        return queryRange(1, 0, n - 1, L, R);
+    }
+};
+
+/**
+ * Segment Tree for Min / Max / GCD Queries
+ *
+ * Supports:
+ * - Point updates: a[i] = v
+ * - Range queries:
+ *     - minimum
+ *     - maximum
+ *     - gcd
+ *
+ * No lazy propagation.
+ *
+ * Time: O(log n) per operation
+ * Space: O(n)
+ */
+class SegmentTreeStats {
+  private:
+    struct Node {
+        ll minVal;
+        ll maxVal;
+        ll gcdVal;
+    };
+
+    std::vector<Node> tree;
+    const ll n;
+
+    static ll validateSize(const ll size) {
+        if (size <= 0) {
+            throw std::invalid_argument("Segment tree size must be positive");
+        }
+        return size;
+    }
+
+    static Node identity() noexcept {
+        return {std::numeric_limits<ll>::max(), std::numeric_limits<ll>::min(), 0};
+    }
+
+    static Node merge(const Node &a, const Node &b) noexcept {
+        return {std::min(a.minVal, b.minVal), std::max(a.maxVal, b.maxVal),
+                std::gcd(a.gcdVal, b.gcdVal)};
+    }
+
+    void build(const std::vector<ll> &arr, const ll node, const ll start, const ll end) {
+        if (start == end) {
+            tree[node] = {arr[start], arr[start], arr[start]};
+        } else {
+            const ll mid = (start + end) / 2;
             build(arr, 2 * node, start, mid);
             build(arr, 2 * node + 1, mid + 1, end);
             tree[node] = merge(tree[2 * node], tree[2 * node + 1]);
         }
     }
 
-    void updateRange(const int node, const int start, const int end, const int L,
-                     const int R, const ll val) {
-        propagate(node, start, end);
-        if (R < start || end < L) {
-            return;
-        }
-        if (L <= start && end <= R) {
-            lazy[node] = val;
-            if (op != Operation::SUM) {
-                lazySet[node] = true;
-            }
-            propagate(node, start, end);
-            return;
-        }
-        const int mid = (start + end) / 2;
-        updateRange(2 * node, start, mid, L, R, val);
-        updateRange(2 * node + 1, mid + 1, end, L, R, val);
-        tree[node] = merge(tree[2 * node], tree[2 * node + 1]);
-    }
-
-    void updatePoint(const int node, const int start, const int end, const int idx,
+    void updatePoint(const ll node, const ll start, const ll end, const ll idx,
                      const ll val) {
         if (start == end) {
-            tree[node] = val;
+            tree[node] = {val, val, val};
             return;
         }
-        const int mid = (start + end) / 2;
+        const ll mid = (start + end) / 2;
         if (idx <= mid) {
             updatePoint(2 * node, start, mid, idx, val);
         } else {
@@ -143,62 +179,52 @@ class SegmentTree {
         tree[node] = merge(tree[2 * node], tree[2 * node + 1]);
     }
 
-    ll queryRange(const int node, const int start, const int end, const int L,
-                  const int R) {
+    Node queryRange(const ll node, const ll start, const ll end, const ll L, const ll R) {
         if (R < start || end < L) {
             return identity();
         }
-        propagate(node, start, end);
         if (L <= start && end <= R) {
             return tree[node];
         }
-        const int mid = (start + end) / 2;
-        const ll leftQuery = queryRange(2 * node, start, mid, L, R);
-        const ll rightQuery = queryRange(2 * node + 1, mid + 1, end, L, R);
-        return merge(leftQuery, rightQuery);
+        const ll mid = (start + end) / 2;
+        return merge(queryRange(2 * node, start, mid, L, R),
+                     queryRange(2 * node + 1, mid + 1, end, L, R));
     }
 
   public:
-    explicit SegmentTree(const std::vector<ll> &arr,
-                         const Operation oper = Operation::SUM)
-        : n(validateSize(static_cast<int>(arr.size()))), op(oper) {
+    explicit SegmentTreeStats(const std::vector<ll> &arr)
+        : n(validateSize(static_cast<ll>(arr.size()))) {
         tree.assign(4 * n, identity());
-        lazy.assign(4 * n, 0);
-        lazySet.assign(4 * n, false);
-        if (n > 0) {
-            build(arr, 1, 0, n - 1);
-        }
+        build(arr, 1, 0, n - 1);
     }
 
-    int size() const { return n; }
-
-    Operation operation() const { return op; }
-
-    void update(const int L, const int R, const ll val) {
-        if (L < 0 || R >= n || L > R) {
-            throw std::out_of_range("Update range out of bounds");
-        }
-        if (op == Operation::GCD) {
-            throw std::logic_error("GCD segment tree only supports point updates");
-        }
-        updateRange(1, 0, n - 1, L, R, val);
-    }
-
-    void updatePoint(const int idx, const ll val) {
+    void updatePoint(const ll idx, const ll val) {
         if (idx < 0 || idx >= n) {
             throw std::out_of_range("Index out of bounds");
         }
         updatePoint(1, 0, n - 1, idx, val);
     }
 
-    ll query(const int L, const int R) {
+    ll queryMin(const ll L, const ll R) {
         if (L < 0 || R >= n || L > R) {
             throw std::out_of_range("Query range out of bounds");
         }
-        return queryRange(1, 0, n - 1, L, R);
+        return queryRange(1, 0, n - 1, L, R).minVal;
     }
 
-    ll queryPoint(const int idx) { return query(idx, idx); }
+    ll queryMax(const ll L, const ll R) {
+        if (L < 0 || R >= n || L > R) {
+            throw std::out_of_range("Query range out of bounds");
+        }
+        return queryRange(1, 0, n - 1, L, R).maxVal;
+    }
+
+    ll queryGCD(const ll L, const ll R) {
+        if (L < 0 || R >= n || L > R) {
+            throw std::out_of_range("Query range out of bounds");
+        }
+        return queryRange(1, 0, n - 1, L, R).gcdVal;
+    }
 };
 
 } // namespace algo::ds
