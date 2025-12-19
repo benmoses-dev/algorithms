@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <stdexcept>
 #include <vector>
 
@@ -80,6 +81,179 @@ class FenwickTree {
     }
 
     ll get(const int index) const { return rangeSum(index, index); }
+};
+
+/**
+ * Node for storing both count and sum in compressed Fenwick tree
+ */
+struct FenwickNode {
+    int count;
+    ll sum;
+
+    FenwickNode() : count(0), sum(0) {}
+    FenwickNode(const int c, const ll s) : count(c), sum(s) {}
+};
+
+/**
+ * Compressed Fenwick Tree
+ *
+ * Handles values up to 10^9 by using coordinate compression.
+ * Maps arbitrary values to compressed ranks [0, k-1] where k is the number of
+ * unique values. The tree stores both count and sum at each compressed position.
+ *
+ * Use case: Dynamic order statistics with range sums
+ * - Find k-th smallest element
+ * - Sum of smallest k elements
+ * - Update values efficiently
+ *
+ * Time: O(log k) per operation where k = number of unique values
+ * Space: O(k)
+ */
+class CompressedFenwickTree {
+  private:
+    int n;
+    std::vector<FenwickNode> bit;
+    std::vector<std::pair<ll, int>> sorted;
+    std::vector<int> compressed;
+
+    static inline int lowbit(const int i) { return i & -i; }
+
+    void addInternal(const int rank, const ll value, const int delta) {
+        for (int i = rank + 1; i <= n; i += lowbit(i)) {
+            bit[i].count += delta;
+            bit[i].sum += value * delta;
+        }
+    }
+
+  public:
+    /**
+     * Construct from a vector of values (possibly with duplicates).
+     */
+    explicit CompressedFenwickTree(const std::vector<ll> &values)
+        : n(values.size()), bit(n + 1), sorted(n), compressed(n) {
+        // Create pairs of (value, original_index)
+        for (int i = 0; i < n; i++) {
+            sorted[i] = {values[i], i};
+        }
+        std::sort(sorted.begin(), sorted.end());
+        // Map each original index to its compressed rank
+        for (int rank = 0; rank < n; rank++) {
+            compressed[sorted[rank].second] = rank;
+        }
+        // Initialise tree with all values
+        for (int i = 0; i < n; i++) {
+            const int rank = compressed[i];
+            addInternal(rank, values[i], 1);
+        }
+    }
+
+    int size() const { return n; }
+
+    /**
+     * Add delta instances of the value at origIdx.
+     * origIdx refers to position in the original input array.
+     */
+    void add(const int origIdx, const int delta = 1) {
+        if (origIdx < 0 || origIdx >= static_cast<int>(compressed.size())) {
+            throw std::out_of_range("Index out of bounds");
+        }
+        const int rank = getRank(origIdx);
+        const ll value = getOriginalValue(rank);
+        addInternal(rank, value, delta);
+    }
+
+    /**
+     * Remove delta instance of the value at origIdx.
+     */
+    void remove(const int origIdx, const int delta = 1) { add(origIdx, -delta); }
+
+    /**
+     * Get sum of the smallest k elements.
+     * Walks the Fenwick tree structure to find k smallest elements in O(log n).
+     *
+     * Returns the sum of their ORIGINAL values (not compressed ranks).
+     */
+    ll sumK(const int k) const {
+        if (k <= 0) {
+            return 0;
+        }
+        int totalCount = 0;
+        ll totalSum = 0;
+        int pos = 0;
+        for (int b = 19; b >= 0; --b) {
+            const int nextPos = pos | (1 << b);
+            if (nextPos <= n && totalCount + bit[nextPos].count <= k) {
+                totalCount += bit[nextPos].count;
+                totalSum += bit[nextPos].sum;
+                pos = nextPos;
+            }
+        }
+        return totalSum;
+    }
+
+    /**
+     * Get sum from the smallest L to the smallest R.
+     * Useful for getting e.g. the sum of the middle third of a range:
+     * rangeSum(n / 3, 2 * n / 3)
+     */
+    ll rangeSum(const int L, const int R) const {
+        if (L < 0) {
+            throw std::out_of_range("Left out of bounds");
+        }
+        if (L <= 1) {
+            return sumK(R);
+        }
+        return sumK(R) - sumK(L - 1);
+    }
+
+    ll totalSum() const {
+        ll total = 0;
+        int pos = 0;
+        for (int b = 19; b >= 0; --b) {
+            const int next = pos | (1 << b);
+            if (next <= n) {
+                total += bit[next].sum;
+                pos = next;
+            }
+        }
+        return total;
+    }
+
+    /**
+     * Get total count of all elements in the tree.
+     */
+    int totalCount() const {
+        int total = 0;
+        int pos = 0;
+        for (int b = 19; b >= 0; --b) {
+            const int next = pos | (1 << b);
+            if (next <= n) {
+                total += bit[next].count;
+                pos = next;
+            }
+        }
+        return total;
+    }
+
+    /**
+     * Get the original value at a compressed rank.
+     */
+    ll getOriginalValue(const int rank) const {
+        if (rank < 0 || rank >= n) {
+            throw std::out_of_range("Rank out of bounds");
+        }
+        return sorted[rank].first;
+    }
+
+    /**
+     * Get compressed rank for an original index.
+     */
+    int getRank(const int origIdx) const {
+        if (origIdx < 0 || origIdx >= static_cast<int>(compressed.size())) {
+            throw std::out_of_range("Index out of bounds");
+        }
+        return compressed[origIdx];
+    }
 };
 
 /**

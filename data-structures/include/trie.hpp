@@ -1,77 +1,98 @@
 #pragma once
 
-#include <map>
+#include <memory>
 #include <string>
+#include <vector>
 
 namespace algo::ds {
 
 struct TrieNode {
-    std::map<char, TrieNode *> children;
-    bool isEnd = false;
+    std::vector<std::unique_ptr<TrieNode>> children;
+    bool isEnd;
+    bool hasChildren;
+    TrieNode() : children(62), isEnd(false), hasChildren(false) {}
 };
 
 class Trie {
   private:
-    TrieNode *root;
+    std::unique_ptr<TrieNode> root;
+
+    int charToIdx(const char c) {
+        if (c >= '0' && c <= '9') {
+            return c - '0';
+        }
+        if (c >= 'A' && c <= 'Z') {
+            return c - 'A' + 10;
+        }
+        if (c >= 'a' && c <= 'z') {
+            return c - 'a' + 36;
+        }
+        return -1;
+    }
 
   public:
-    Trie() { root = new TrieNode(); }
+    Trie() { root = std::make_unique<TrieNode>(); }
 
     void insert(const std::string &s) {
-        TrieNode *curr = root;
+        TrieNode *curr = root.get();
         for (const char c : s) {
-            if (!curr->children[c])
-                curr->children[c] = new TrieNode();
-            curr = curr->children[c];
+            const int idx = charToIdx(c);
+            if (!curr->children[idx]) {
+                curr->children[idx] = std::make_unique<TrieNode>();
+                curr->hasChildren = true;
+            }
+            curr = curr->children[idx].get();
         }
         curr->isEnd = true;
     }
 
     bool search(const std::string &s) {
-        TrieNode *curr = root;
+        TrieNode *curr = root.get();
         for (const char c : s) {
-            if (!curr->children[c]) {
+            const int idx = charToIdx(c);
+            if (!curr->children[idx]) {
                 return false;
             }
-            curr = curr->children[c];
+            curr = curr->children[idx].get();
         }
         return curr->isEnd;
     }
 };
 
 struct BinaryTrieNode {
-    BinaryTrieNode *child[2] = {nullptr, nullptr}; // 0 and 1
+    std::vector<std::unique_ptr<BinaryTrieNode>> children;
+    BinaryTrieNode() : children(2) {}
 };
 
 class BinaryTrie {
   private:
-    BinaryTrieNode *root;
+    std::unique_ptr<BinaryTrieNode> root;
 
   public:
-    BinaryTrie() { root = new BinaryTrieNode(); }
+    BinaryTrie() { root = std::make_unique<BinaryTrieNode>(); }
 
     void insert(const int num) {
-        BinaryTrieNode *curr = root;
-        for (int i = 30; i >= 0; i--) { // 31 bits, MSB first
+        BinaryTrieNode *curr = root.get();
+        for (int i = 30; i >= 0; i--) {
             const int bit = (num >> i) & 1;
-            if (!curr->child[bit]) {
-                curr->child[bit] = new BinaryTrieNode();
+            if (!curr->children[bit]) {
+                curr->children[bit] = std::make_unique<BinaryTrieNode>();
             }
-            curr = curr->child[bit];
+            curr = curr->children[bit].get();
         }
     }
 
     int maxXOR(const int num) {
-        BinaryTrieNode *curr = root;
+        BinaryTrieNode *curr = root.get();
         int result = 0;
         for (int i = 30; i >= 0; i--) {
             const int bit = (num >> i) & 1;
             const int oppositeBit = 1 - bit;
-            if (curr->child[oppositeBit]) {
+            if (curr->children[oppositeBit]) {
                 result |= (1 << i);
-                curr = curr->child[oppositeBit];
+                curr = curr->children[oppositeBit].get();
             } else {
-                curr = curr->child[bit];
+                curr = curr->children[bit].get();
             }
         }
         return result;
