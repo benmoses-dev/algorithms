@@ -2,33 +2,21 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
-namespace algo::ds {
+namespace algo::strings {
 
 struct TrieNode {
-    std::vector<std::unique_ptr<TrieNode>> children;
+    std::unordered_map<char, std::unique_ptr<TrieNode>> children;
     bool isEnd;
     bool hasChildren;
-    TrieNode() : children(62), isEnd(false), hasChildren(false) {}
+    TrieNode() : isEnd(false), hasChildren(false) {}
 };
 
 class Trie {
   private:
     std::unique_ptr<TrieNode> root;
-
-    int charToIdx(const char c) {
-        if (c >= '0' && c <= '9') {
-            return c - '0';
-        }
-        if (c >= 'A' && c <= 'Z') {
-            return c - 'A' + 10;
-        }
-        if (c >= 'a' && c <= 'z') {
-            return c - 'a' + 36;
-        }
-        return -1;
-    }
 
   public:
     Trie() { root = std::make_unique<TrieNode>(); }
@@ -36,12 +24,11 @@ class Trie {
     void insert(const std::string &s) {
         TrieNode *curr = root.get();
         for (const char c : s) {
-            const int idx = charToIdx(c);
-            if (!curr->children[idx]) {
-                curr->children[idx] = std::make_unique<TrieNode>();
+            if (!curr->children[c]) {
+                curr->children[c] = std::make_unique<TrieNode>();
                 curr->hasChildren = true;
             }
-            curr = curr->children[idx].get();
+            curr = curr->children[c].get();
         }
         curr->isEnd = true;
     }
@@ -49,11 +36,10 @@ class Trie {
     bool search(const std::string &s) {
         TrieNode *curr = root.get();
         for (const char c : s) {
-            const int idx = charToIdx(c);
-            if (!curr->children[idx]) {
+            if (!curr->children[c]) {
                 return false;
             }
-            curr = curr->children[idx].get();
+            curr = curr->children[c].get();
         }
         return curr->isEnd;
     }
@@ -99,4 +85,4 @@ class BinaryTrie {
     }
 };
 
-} // namespace algo::ds
+} // namespace algo::strings
