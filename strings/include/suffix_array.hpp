@@ -74,19 +74,25 @@ class SuffixArray {
      * Time: O(n)
      */
     void buildLCP() {
-        std::size_t h = 0;
-        for (std::size_t i = 0; i < n; i++) {
-            if (rank[i] > 0) {
-                const std::size_t j = sa[rank[i] - 1];
-                while (i + h < n && j + h < n && text[i + h] == text[j + h]) {
-                    h++;
-                }
-                lcp[rank[i]] = h;
-                if (h > 0) {
-                    h--;
-                }
-            } else {
-                lcp[rank[i]] = 0;
+        lcp[0] = 0;
+        std::size_t len = 0;
+        for (std::size_t suff = 0; suff < n; suff++) {
+            const std::size_t at = rank[suff];
+            if (at <= 0) {
+                continue;
+            }
+            const std::size_t prev = at - 1;
+            const std::size_t prevSuff = sa[prev];
+            std::size_t r = suff + len;
+            std::size_t l = prevSuff + len;
+            while (r < n && l < n && text[r] == text[l]) {
+                len++;
+                r = suff + len;
+                l = prevSuff + len;
+            }
+            lcp[at] = len;
+            if (len > 0) {
+                len--;
             }
         }
     }

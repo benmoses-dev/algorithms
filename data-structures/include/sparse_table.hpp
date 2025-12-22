@@ -8,18 +8,17 @@ namespace algo::ds {
 
 class SparseTable {
   private:
-    std::vector<std::vector<int>> st;
-    std::vector<std::size_t> lg;
     std::size_t n;
-
-    int combine(int a, int b) { return std::min(a, b); }
+    std::vector<std::vector<std::size_t>> st;
+    std::vector<std::size_t> lg;
 
   public:
-    SparseTable(std::vector<int> &arr) {
-        n = arr.size();
+    SparseTable(const std::vector<std::size_t> &arr) : n(arr.size()), lg(n + 1, 0) {
+        if (n == 0) {
+            return;
+        }
         std::size_t maxLog = std::__lg(n) + 1;
-        st.assign(n, std::vector<int>(maxLog));
-        lg.assign(n + 1, 0);
+        st.assign(n, std::vector<std::size_t>(maxLog));
         for (std::size_t i = 2; i <= n; i++) {
             lg[i] = lg[i / 2] + 1;
         }
@@ -28,18 +27,18 @@ class SparseTable {
         }
         for (std::size_t j = 1; j < maxLog; j++) {
             for (std::size_t i = 0; i + (1 << j) <= n; i++) {
-                st[i][j] = combine(st[i][j - 1], st[i + (1 << (j - 1))][j - 1]);
+                st[i][j] = std::min(st[i][j - 1], st[i + (1 << (j - 1))][j - 1]);
             }
         }
     }
 
-    int query(std::size_t L, std::size_t R) {
+    std::size_t query(std::size_t L, std::size_t R) const {
         if (L > R) {
             throw std::invalid_argument("L cannot be greater than R");
         }
         std::size_t len = R - L + 1;
         std::size_t k = lg[len];
-        return combine(st[L][k], st[R - (1 << k) + 1][k]);
+        return std::min(st[L][k], st[R - (1 << k) + 1][k]);
     }
 };
 
