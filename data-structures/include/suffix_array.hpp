@@ -1,10 +1,16 @@
 #pragma once
 
+#include "sparse_table.hpp"
 #include <algorithm>
+#include <climits>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
-namespace algo::strings {
+namespace algo::ds {
+
+using ll = long long;
 
 struct SubString {
     std::size_t length;
@@ -127,7 +133,7 @@ class SuffixArray {
      *
      * Time: O(n)
      */
-    std::size_t countDistinctSubstrings() const {
+    std::size_t distinct() const {
         const std::size_t total = n * (n + 1) / 2;
         std::size_t duplicates = 0;
         for (const std::size_t lcpVal : lcp) {
@@ -146,7 +152,7 @@ class SuffixArray {
      *
      * @return SubString with (length, starting_position)
      */
-    SubString longestRepeatedSubstring() const {
+    SubString LRS() const {
         if (n == 0) {
             return {0, 0};
         }
@@ -156,39 +162,6 @@ class SuffixArray {
             if (lcp[i] > maxLen) {
                 maxLen = lcp[i];
                 pos = sa[i];
-            }
-        }
-        return {maxLen, pos};
-    }
-
-    /**
-     * Find longest common substring between this string and another.
-     *
-     * Method: Concatenate strings with a separator: S1 + "#" + S2
-     * Build suffix array on concatenated string.
-     * Find maximum LCP where one suffix is from S1 and other from S2.
-     *
-     * Time: O(n1 + n2)
-     *
-     * @param other The other string
-     * @return Pair of (length, position_in_this_string)
-     */
-    SubString longestCommonSubstring(const std::string &other) const {
-        const std::string combined = text + "#" + other;
-        const SuffixArray sa2 = SuffixArray(combined);
-        const std::size_t separator = n; // Position of '#'
-        std::size_t maxLen = 0;
-        std::size_t pos = 0;
-        const auto &sa = sa2.getSA();
-        const auto &lcp = sa2.getLCP();
-        for (std::size_t i = 1; i < n; i++) {
-            const bool firstFromS1 = sa[i - 1] < separator;
-            const bool secondFromS1 = sa[i] < separator;
-            if (firstFromS1 != secondFromS1) {
-                if (lcp[i] > maxLen) {
-                    maxLen = lcp[i];
-                    pos = (sa[i] < separator) ? sa[i] : sa[i - 1];
-                }
             }
         }
         return {maxLen, pos};
@@ -259,8 +232,6 @@ class SuffixArray {
     }
 
     /**
-     * Check if pattern exists in text
-     *
      * Time: O(m log n)
      */
     bool contains(const std::string &pattern) const { return count(pattern) > 0; }
@@ -296,8 +267,6 @@ class SuffixArray {
      * A repeat is maximal if extending it left or right would make it occur fewer times.
      *
      * Time: O(n)
-     *
-     * @return Vector of (length, position) for each maximal repeat
      */
     std::vector<SubString> maximalRepeats() const {
         std::vector<SubString> result;
@@ -326,8 +295,7 @@ class SuffixArray {
      * This is used for finding LCP between any two suffixes.
      * LCP(suffix i, suffix j) = min(LCP[rank[i]+1], ..., LCP[rank[j]])
      *
-     * For efficient RMQ, you'd build a sparse table or segment tree.
-     * This is a simple O(n) implementation...
+     * Uses a sparse table for o(1) queries
      */
     std::size_t lcpRange(std::size_t l, std::size_t r) const {
         if (l > r) {
@@ -336,11 +304,8 @@ class SuffixArray {
         if (l == r) {
             return n - sa[l];
         }
-        std::size_t minLcp = lcp[l + 1];
-        for (std::size_t i = l + 2; i <= r; i++) {
-            minLcp = std::min(minLcp, lcp[i]);
-        }
-        return minLcp;
+        SparseTable st = SparseTable(lcp);
+        return st.query(l, r);
     }
 
     /**
@@ -349,16 +314,11 @@ class SuffixArray {
      * @param i Starting position of first suffix
      * @param j Starting position of second suffix
      * @return Length of longest common prefix
-     *
-     * Time: O(n) with this implementation, O(1) with preprocessing (RMQ)
      */
     std::size_t lcpBetween(const std::size_t i, const std::size_t j) const {
-        if (i == j) {
-            return n - i;
-        }
         const std::size_t ri = rank[i];
         const std::size_t rj = rank[j];
-        return lcpRange(std::min(ri, rj), std::max(ri, rj));
+        return lcpRange(ri, rj);
     }
 
     /**
@@ -424,4 +384,185 @@ class SuffixArray {
     }
 };
 
-} // namespace algo::strings
+/**
+ * Find longest common substring between two strings.
+ *
+ * Method: Concatenate strings with a separator: S1 + "#" + S2
+ * Build suffix array on concatenated string.
+ * Find maximum LCP where one suffix is from S1 and other from S2.
+ *
+ * Time: O(n1 + n2)
+ */
+inline SubString LCS(const std::string &a, const std::string &b) {
+    const std::string combined = a + "#" + b;
+    const SuffixArray SA = SuffixArray(combined);
+    const std::size_t n = combined.size();
+    const std::size_t separator = a.size();
+    std::size_t maxLen = 0;
+    std::size_t pos = 0;
+    const auto &sa = SA.getSA();
+    const auto &lcp = SA.getLCP();
+    for (std::size_t i = 1; i < n; i++) {
+        const bool firstFromS1 = sa[i - 1] < separator;
+        const bool secondFromS1 = sa[i] < separator;
+        if (firstFromS1 && secondFromS1) {
+            continue;
+        }
+        if (lcp[i] > maxLen) {
+            maxLen = lcp[i];
+            pos = (sa[i] < separator) ? sa[i] : sa[i - 1];
+        }
+    }
+    return {maxLen, pos};
+}
+
+/**
+ * Specialised version for arbitrary integer arrays.
+ */
+class IntSuffixArray {
+  private:
+    std::vector<ll> text;
+    std::size_t n;
+    std::vector<std::size_t> sa;
+    std::vector<std::size_t> lcp;
+    std::vector<std::size_t> rank;
+
+    void buildSA() {
+        std::vector<std::size_t> temp(n);
+        for (std::size_t i = 0; i < n; i++) {
+            sa[i] = i;
+            rank[i] = text[i];
+        }
+        for (std::size_t k = 1; k < n; k <<= 1) {
+            const auto cmp = [&](std::size_t i, std::size_t j) {
+                if (rank[i] != rank[j]) {
+                    return rank[i] < rank[j];
+                }
+                i += k;
+                j += k;
+                const std::size_t ri = (i < n) ? rank[i] : 0;
+                const std::size_t rj = (j < n) ? rank[j] : 0;
+                return ri < rj;
+            };
+            std::sort(sa.begin(), sa.end(), cmp);
+            temp[sa[0]] = 0;
+            for (std::size_t i = 1; i < n; i++) {
+                const bool equal = !cmp(sa[i - 1], sa[i]);
+                temp[sa[i]] = temp[sa[i - 1]] + (equal ? 0 : 1);
+            }
+            rank = temp;
+            if (rank[sa[n - 1]] == n - 1) {
+                break;
+            }
+        }
+    }
+
+    void buildLCP() {
+        lcp[0] = 0;
+        std::size_t len = 0;
+        for (std::size_t suff = 0; suff < n; suff++) {
+            const std::size_t at = rank[suff];
+            if (at <= 0) {
+                continue;
+            }
+            const std::size_t prev = at - 1;
+            const std::size_t prevSuff = sa[prev];
+            std::size_t r = suff + len;
+            std::size_t l = prevSuff + len;
+            while (r < n && l < n && text[r] == text[l]) {
+                len++;
+                r = suff + len;
+                l = prevSuff + len;
+            }
+            lcp[at] = len;
+            if (len > 0) {
+                len--;
+            }
+        }
+    }
+
+  public:
+    explicit IntSuffixArray(const std::vector<ll> &in)
+        : text(in), n(text.size()), sa(n), lcp(n), rank(n) {
+        if (n == 0) {
+            return;
+        }
+        buildSA();
+        buildLCP();
+    }
+    const std::vector<std::size_t> &getSA() const { return sa; }
+
+    const std::vector<std::size_t> &getLCP() const { return lcp; }
+
+    const std::vector<std::size_t> &getRank() const { return rank; }
+};
+
+inline std::pair<std::vector<ll>, std::vector<ll>>
+buildCombined(const std::vector<std::string> &strings) {
+    const std::size_t n = strings.size();
+    std::vector<ll> combined;
+    std::vector<ll> ranges;
+    for (std::size_t i = 0; i < n; i++) {
+        if (i > 0) {
+            combined.emplace_back(-LLONG_MAX + i);
+            ranges.emplace_back(-1);
+        }
+        for (const char c : strings[i]) {
+            combined.emplace_back((ll)c + n);
+            ranges.emplace_back((ll)i);
+        }
+    }
+    return {combined, ranges};
+}
+
+inline std::size_t getLCS(const std::vector<std::string> &strings) {
+    const std::size_t n = strings.size();
+    if (n == 0) {
+        return 0;
+    }
+    if (n == 1) {
+        return strings[0].length();
+    }
+
+    const auto [combined, ranges] = buildCombined(strings);
+    const std::size_t len = combined.size();
+
+    IntSuffixArray SA = IntSuffixArray(combined);
+    const auto &sa = SA.getSA();
+    const auto &lcp = SA.getLCP();
+    SparseTable rmq = SparseTable(lcp);
+
+    std::size_t result = 0;
+    std::unordered_set<ll> inSpan;
+    std::unordered_map<ll, size_t> counts;
+    std::size_t j = 0;
+    for (std::size_t i = 0; i < len; i++) {
+        const ll range = ranges[sa[i]];
+        if (range == -1) {
+            continue;
+        }
+        inSpan.insert(range);
+        counts[range]++;
+        while (j < i) {
+            const ll jRange = ranges[sa[j]];
+            if (jRange == -1) {
+                j++;
+                continue;
+            }
+            if (counts[jRange] > 1) {
+                counts[jRange]--;
+                j++;
+            } else {
+                break;
+            }
+        }
+        if (inSpan.size() == n && j < i) {
+            const std::size_t minLCP = rmq.query(j + 1, i);
+            result = std::max(result, minLCP);
+        }
+    }
+
+    return result;
+}
+
+} // namespace algo::ds
