@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <limits>
 #include <queue>
-#include <stdexcept>
 #include <vector>
 
 namespace algo::graph {
@@ -12,6 +11,8 @@ using ul = std::size_t;
 using ll = long long;
 using Edge = std::pair<ul, ll>;
 
+constexpr ll INF = std::numeric_limits<ll>::max();
+
 /**
  * Bellman–Ford: single-source shortest paths with negative weights.
  *
@@ -19,19 +20,17 @@ using Edge = std::pair<ul, ll>;
  * - Detects negative cycles reachable from the source
  * - O(VE)
  */
-inline std::vector<ll> BF(const std::vector<std::vector<Edge>> &adjacencyList,
-                          const ul start) {
-    const ul n = adjacencyList.size();
-    constexpr ll INF = std::numeric_limits<ll>::max();
+inline std::vector<ll> BF(const std::vector<std::vector<Edge>> &adj, const ul start) {
+    const ul n = adj.size();
     std::vector<ll> dist(n, INF);
     dist[start] = 0;
-    for (ul iter = 0; iter + 1 < n; iter++) {
+    for (ul i = 0; i + 1 < n; i++) {
         bool relaxed = false;
         for (ul u = 0; u < n; u++) {
             if (dist[u] == INF) {
                 continue;
             }
-            for (const auto &[v, w] : adjacencyList[u]) {
+            for (const auto &[v, w] : adj[u]) {
                 const ll nd = dist[u] + w;
                 if (nd < dist[v]) {
                     dist[v] = nd;
@@ -43,13 +42,25 @@ inline std::vector<ll> BF(const std::vector<std::vector<Edge>> &adjacencyList,
             break;
         }
     }
+    std::queue<ul> neg;
     for (ul u = 0; u < n; u++) {
         if (dist[u] == INF) {
             continue;
         }
-        for (const auto &[v, w] : adjacencyList[u]) {
+        for (const auto &[v, w] : adj[u]) {
             if (dist[u] + w < dist[v]) {
-                throw std::runtime_error("Negative cycle detected");
+                neg.push(v);
+                dist[v] = -INF;
+            }
+        }
+    }
+    while (!neg.empty()) {
+        const ul at = neg.front();
+        neg.pop();
+        for (const auto &[next, w] : adj[at]) {
+            if (dist[next] != -INF) {
+                dist[next] = -INF;
+                neg.push(next);
             }
         }
     }
@@ -65,29 +76,42 @@ inline std::vector<ll> BF(const std::vector<std::vector<Edge>> &adjacencyList,
  */
 inline std::vector<ll> spfa(const std::vector<std::vector<Edge>> &adj, const ul source) {
     const ul n = adj.size();
-    constexpr ll INF = std::numeric_limits<ll>::max();
     std::vector<ll> dist(n, INF);
-    std::vector<uint8_t> inQueue(n, 0);
-    std::vector<ul> relaxCount(n, 0);
+    std::vector<uint8_t> inQ(n, 0);
+    std::vector<ul> count(n, 0);
     std::queue<ul> q;
     dist[source] = 0;
     q.push(source);
-    inQueue[source] = 1;
+    inQ[source] = 1;
+    std::queue<ul> neg;
     while (!q.empty()) {
         const ul u = q.front();
         q.pop();
-        inQueue[u] = 0;
+        inQ[u] = 0;
         for (const auto &[v, w] : adj[u]) {
+            if (count[v] > n) {
+                dist[v] = -INF;
+                neg.push(v);
+                continue;
+            }
             const ll nd = dist[u] + w;
             if (nd < dist[v]) {
                 dist[v] = nd;
-                if (!inQueue[v]) {
+                if (!inQ[v]) {
                     q.push(v);
-                    inQueue[v] = 1;
-                    if (++relaxCount[v] > n) {
-                        throw std::runtime_error("Negative cycle detected");
-                    }
+                    inQ[v] = 1;
+                    count[v]++;
                 }
+            }
+        }
+    }
+    while (!neg.empty()) {
+        const ul at = neg.front();
+        neg.pop();
+        for (const auto &[next, w] : adj[at]) {
+            if (dist[next] != -INF) {
+                dist[next] = -INF;
+                neg.push(next);
             }
         }
     }

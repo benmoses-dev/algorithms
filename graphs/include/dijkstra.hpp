@@ -14,6 +14,8 @@ using ul = std::size_t;
 using ll = long long;
 using edge = std::pair<ul, ll>;
 
+const ll INF = std::numeric_limits<ll>::max();
+
 template <typename T> constexpr ul to_uint(T x) {
     if (x < 0) {
         throw std::runtime_error("Cannot cast a negative to unsigned!");
@@ -73,7 +75,6 @@ class ShortestPaths {
     }
 
     void dijkstraInternal(const ul start) {
-        const ll INF = std::numeric_limits<ll>::max();
         std::fill(dist.begin(), dist.end(), INF);
         std::fill(prev.begin(), prev.end(), -1);
         std::priority_queue<std::pair<ll, ul>, std::vector<std::pair<ll, ul>>,
@@ -127,7 +128,6 @@ class ShortestPaths {
         computePotentials();
         usePotentials = true;
         std::vector<std::vector<ll>> result(n, std::vector<ll>(n));
-        const ll INF = std::numeric_limits<ll>::max();
         for (ul s = 0; s < n; s++) {
             dijkstraInternal(s);
             for (ul v = 0; v < n; v++) {
