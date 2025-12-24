@@ -8,49 +8,49 @@
 
 namespace algo::graph {
 
-using u64 = std::uint64_t;
-using i64 = std::int64_t;
-using Bridge = std::pair<u64, u64>;
+using ll = long long;
+using ul = std::size_t;
+using Bridge = std::pair<ul, ul>;
 
-template <typename T> constexpr u64 to_uint(T x) {
+template <typename T> constexpr ul to_uint(T x) {
     if (x < 0) {
         throw std::runtime_error("Cannot cast a negative to unsigned!");
     }
-    return static_cast<u64>(x);
+    return static_cast<ul>(x);
 }
 
-template <typename T> constexpr i64 to_int(T x) { return static_cast<i64>(x); }
+template <typename T> constexpr ll to_int(T x) { return static_cast<ll>(x); }
 
 /**
  * Store the results of the DFS.
  * This allows us to solve multiple different types of graph/tree traversal problems.
  */
 struct DFSResult {
-    bool hasCycle;               // Detect cycles in undirected or directed graphs.
-    std::vector<i64> parent;     // Used to recreate the path through the graph.
-    std::vector<i64> components; // Used for connectivity checks.
-    std::vector<i64> entry;      // Track the order of processing.
-    std::vector<i64> exit;       // Used to track ancestors.
-    std::vector<i64> low;        // Used to find the critical components of a graph.
-    std::vector<u64> articulationPoints; // Critical nodes in an undirected graph.
-    std::vector<Bridge> bridges;         // Critical edges in an undirected graph.
-    std::vector<std::vector<u64>>
+    bool hasCycle;              // Detect cycles in undirected or directed graphs.
+    std::vector<ll> parent;     // Used to recreate the path through the graph.
+    std::vector<ll> components; // Used for connectivity checks.
+    std::vector<ll> entry;      // Track the order of processing.
+    std::vector<ll> exit;       // Used to track ancestors.
+    std::vector<ll> low;        // Used to find the critical components of a graph.
+    std::vector<ul> articulationPoints; // Critical nodes in an undirected graph.
+    std::vector<Bridge> bridges;        // Critical edges in an undirected graph.
+    std::vector<std::vector<ul>>
         sccs;                     // Strongly-connected components in a directed graph.
-    std::stack<u64> sccStack;     // Track current component stack.
+    std::stack<ul> sccStack;      // Track current component stack.
     std::vector<uint8_t> onStack; // Tarjan's SCC algorithm.
-    std::vector<i64> sccIndex;    // Component ID for each node in Tarjan's.
-    std::vector<u64> postOrder;   // Track post order of traversal.
-    std::vector<u64> topoOrder;   // Only useful in a DAG.
+    std::vector<ll> sccIndex;     // Component ID for each node in Tarjan's.
+    std::vector<ul> postOrder;    // Track post order of traversal.
+    std::vector<ul> topoOrder;    // Only useful in a DAG.
 };
 
 class DFSDriver {
   private:
-    i64 timer;
-    i64 currentComponent;
-    i64 currSCC;
+    ll timer;
+    ll currentComponent;
+    ll currSCC;
 
-    void undirectedDfs(std::vector<std::vector<u64>> &adj, std::vector<uint8_t> &visited,
-                       DFSResult &res, u64 u, i64 p = -1) {
+    void undirectedDfs(std::vector<std::vector<ul>> &adj, std::vector<uint8_t> &visited,
+                       DFSResult &res, ul u, ll p = -1) {
         /**
          * 0 = not visited
          * 1 = visiting
@@ -61,10 +61,10 @@ class DFSDriver {
         res.components[u] = currentComponent; // Flood fill all nodes in the same DFS.
 
         res.entry[u] = res.low[u] = timer++;
-        u64 children = 0;
+        ul children = 0;
         bool isArticulation = false;
 
-        for (u64 v : adj[u]) {
+        for (ul v : adj[u]) {
             if (p >= 0 && v == to_uint(p)) // Don't go back up the edge.
                 continue;
 
@@ -118,8 +118,8 @@ class DFSDriver {
         res.postOrder.push_back(u);
     }
 
-    void directedDfs(std::vector<std::vector<u64>> &adj, std::vector<uint8_t> &visited,
-                     DFSResult &res, u64 u, i64 p = -1) {
+    void directedDfs(std::vector<std::vector<ul>> &adj, std::vector<uint8_t> &visited,
+                     DFSResult &res, ul u, ll p = -1) {
         /**
          * 0 = not visited
          * 1 = visiting
@@ -136,7 +136,7 @@ class DFSDriver {
         res.sccStack.push(u);
         res.onStack[u] = 1;
 
-        for (u64 v : adj[u]) {
+        for (ul v : adj[u]) {
             if (visited[v] == 0) {
                 // Recurse and then update the low-link.
                 directedDfs(adj, visited, res, v, to_int(u));
@@ -151,9 +151,9 @@ class DFSDriver {
 
         if (res.low[u] == res.entry[u]) {
             // Root of SCC - process all strongly connected components in this group.
-            std::vector<u64> components;
+            std::vector<ul> components;
             while (!res.sccStack.empty()) {
-                u64 v = res.sccStack.top();
+                ul v = res.sccStack.top();
                 res.sccStack.pop();
                 res.onStack[v] = 0;
                 components.push_back(v);
@@ -176,8 +176,8 @@ class DFSDriver {
      * Pass isDirected depending on whether the graph is directed or
      * not.
      */
-    DFSResult runDFS(std::vector<std::vector<u64>> &adj, bool isDirected = false) {
-        std::size_t n = adj.size();
+    DFSResult runDFS(std::vector<std::vector<ul>> &adj, bool isDirected = false) {
+        ul n = adj.size();
 
         DFSResult res;
         res.parent.assign(n, -1);
@@ -190,7 +190,7 @@ class DFSDriver {
         res.onStack.assign(n, 0);
         std::vector<uint8_t> visited(n, 0);
 
-        for (std::size_t u = 0; u < n; u++) {
+        for (ul u = 0; u < n; u++) {
             if (visited[u] == 0) {
                 if (isDirected) {
                     directedDfs(adj, visited, res, u, -1);
@@ -213,8 +213,8 @@ class DFSDriver {
     /**
      * Re-construct the recursion path using the parent vector.
      */
-    std::vector<u64> getPath(i64 u, DFSResult &res) {
-        std::vector<u64> path;
+    std::vector<ul> getPath(ll u, DFSResult &res) {
+        std::vector<ul> path;
         while (u >= 0) {
             path.push_back(to_uint(u));
             u = res.parent[to_uint(u)];
@@ -224,9 +224,45 @@ class DFSDriver {
     }
 
     /**
+     * Shortest path in a DAG using topological order.
+     * Works with positive, negative, or zero weights (no cycles to exploit).
+     * Time: O(V + E) - faster than Dijkstra or Bellman-Ford
+     *
+     * If the graph has cycles, use either Dijkstra, if the weights cannot be negative, or
+     * use Bellman-Ford or SPFA otherwise.
+     *
+     * @param adj Weighted adjacency list: adj[u] = [(v1, w1), (v2, w2), ...]
+     * @param source Starting vertex
+     * @param res DFSResult containing topoOrder (from runDFS with isDirected=true)
+     * @return Vector of shortest distances from source
+     */
+    template <typename WT = ll>
+    std::vector<WT> dagSSSP(const std::vector<std::vector<std::pair<ul, WT>>> &adj,
+                            ul source, const DFSResult &res) {
+        if (res.hasCycle) {
+            throw std::runtime_error("Graph contains cycle");
+        }
+        std::size_t n = adj.size();
+        constexpr WT INF = std::numeric_limits<WT>::max();
+        std::vector<WT> dist(n, INF);
+        dist[source] = 0;
+        for (ul u : res.topoOrder) {
+            if (dist[u] == INF) {
+                continue;
+            }
+            for (const auto &[v, weight] : adj[u]) {
+                if (dist[u] != INF && dist[u] + weight < dist[v]) {
+                    dist[v] = dist[u] + weight;
+                }
+            }
+        }
+        return dist;
+    }
+
+    /**
      * Is u an ancestor of v?
      */
-    bool isAncestor(u64 u, u64 v, const DFSResult &res) {
+    bool isAncestor(ul u, ul v, const DFSResult &res) {
         return (res.entry[u] <= res.entry[v]) && (res.exit[v] <= res.exit[u]);
     }
 };
@@ -235,13 +271,13 @@ class DFSDriver {
  * Simple backtracking to build up combinations summing to a target.
  */
 inline void backtrack(const int target, const std::vector<int> &options,
-                      std::vector<int> &current, const std::size_t index,
+                      std::vector<int> &current, const ul index,
                       std::vector<std::vector<int>> &results) {
     if (target == 0) {
         results.push_back(current);
         return;
     }
-    for (std::size_t i = index; i < 3; i++) {
+    for (ul i = index; i < 3; i++) {
         if (options[i] > target) {
             continue;
         }
@@ -251,4 +287,4 @@ inline void backtrack(const int target, const std::vector<int> &options,
     }
 }
 
-} // namespace algo::dfs
+} // namespace algo::graph
