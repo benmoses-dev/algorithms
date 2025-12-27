@@ -1,8 +1,9 @@
 #pragma once
 
+#include <cstdint>
 #include <limits>
 #include <optional>
-#include <stdexcept>
+#include <queue>
 #include <vector>
 
 namespace algo::graph {
@@ -14,7 +15,7 @@ using edge = std::pair<ul, ll>;
 /**
  * Floyd–Warshall: All-pairs shortest paths.
  *
- * - Supports negative weights (no negative cycles)
+ * - Supports negative weights (also catches negative cycles)
  * - O(V^3)
  */
 class FloydWarshall {
@@ -42,7 +43,7 @@ class FloydWarshall {
         }
     }
 
-    void compute() {
+    std::vector<std::vector<ll>> compute() {
         const ll INF = std::numeric_limits<ll>::max();
         for (ul k = 0; k < n; k++) {
             for (ul i = 0; i < n; i++) {
@@ -61,15 +62,31 @@ class FloydWarshall {
                 }
             }
         }
-
+        std::queue<ul> neg;
+        std::vector<std::uint8_t> inQ(n, 0);
         for (ul i = 0; i < n; i++) {
             if (dist[i][i] < 0) {
-                throw std::runtime_error("Negative cycle detected");
+                neg.push(i);
+                inQ[i] = 1;
             }
         }
+        while (!neg.empty()) {
+            const ul at = neg.front();
+            neg.pop();
+            for (ul i = 0; i < n; i++) {
+                for (ul j = 0; j < n; j++) {
+                    if (dist[i][at] != INF && dist[at][j] != INF) {
+                        dist[i][j] = -INF;
+                        if (!inQ[j]) {
+                            inQ[j] = 1;
+                            neg.push(j);
+                        }
+                    }
+                }
+            }
+        }
+        return dist;
     }
-
-    const std::vector<std::vector<ll>> &getDistances() const { return dist; }
 
     std::vector<ul> reconstructPath(ul u, const ul v) const {
         const ll INF = std::numeric_limits<ll>::max();

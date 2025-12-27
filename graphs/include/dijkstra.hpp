@@ -43,32 +43,97 @@ class ShortestPaths {
     const ul n;
     std::vector<ll> dist;
     std::vector<ll> prev;
-    std::vector<ll> potential;
+    std::vector<ll> p;
     bool usePotentials;
+    std::vector<std::uint8_t> neg;
 
-    void computePotentials() {
-        std::fill(potential.begin(), potential.end(), 0);
+    void SPFA() {
+        std::fill(p.begin(), p.end(), 0);
+        std::vector<uint8_t> inQ(n, 1);
+        std::vector<ul> count(n, 0);
         std::queue<ul> q;
-        std::vector<uint8_t> inQueue(n, 1);
-        std::vector<ul> relaxCount(n, 0);
         for (ul i = 0; i < n; i++) {
             q.push(i);
         }
+        std::queue<ul> negQ;
         while (!q.empty()) {
             const ul u = q.front();
             q.pop();
-            inQueue[u] = 0;
+            inQ[u] = 0;
             for (const auto &[v, w] : adj[u]) {
-                const ll nd = potential[u] + w;
-                if (nd < potential[v]) {
-                    potential[v] = nd;
-                    if (!inQueue[v]) {
+                if (count[v] > n) {
+                    neg[v] = 1;
+                    negQ.push(v);
+                    continue;
+                }
+                const ll nd = p[u] + w;
+                if (nd < p[v]) {
+                    p[v] = nd;
+                    if (!inQ[v]) {
                         q.push(v);
-                        inQueue[v] = 1;
-                        if (++relaxCount[v] >= n) {
-                            throw std::runtime_error("Negative cycle detected");
-                        }
+                        inQ[v] = 1;
+                        count[v]++;
                     }
+                }
+            }
+        }
+        std::vector<std::uint8_t> visited(n, 0);
+        while (!negQ.empty()) {
+            const ul at = negQ.front();
+            negQ.pop();
+            if (visited[at]) {
+                continue;
+            }
+            visited[at] = 1;
+            for (const auto &[next, w] : adj[at]) {
+                if (!neg[next]) {
+                    neg[next] = 1;
+                    negQ.push(next);
+                }
+            }
+        }
+    }
+
+    void BF() {
+        std::fill(p.begin(), p.end(), 0);
+        for (ul i = 0; i + 1 < n; i++) {
+            bool relaxed = false;
+            for (ul u = 0; u < n; u++) {
+                for (const auto &[v, w] : adj[u]) {
+                    const ll nd = p[u] + w;
+                    if (nd < p[v]) {
+                        p[v] = nd;
+                        relaxed = true;
+                    }
+                }
+            }
+            if (!relaxed) {
+                break;
+            }
+        }
+        std::queue<ul> negQ;
+        for (ul u = 0; u < n; u++) {
+            for (const auto &[v, w] : adj[u]) {
+                if (p[u] + w < p[v]) {
+                    if (!neg[v]) {
+                        neg[v] = 1;
+                        negQ.push(v);
+                    }
+                }
+            }
+        }
+        std::vector<std::uint8_t> visited(n, 0);
+        while (!negQ.empty()) {
+            const ul at = negQ.front();
+            negQ.pop();
+            if (visited[at]) {
+                continue;
+            }
+            visited[at] = 1;
+            for (const auto &[next, w] : adj[at]) {
+                if (!neg[next]) {
+                    neg[next] = 1;
+                    negQ.push(next);
                 }
             }
         }
@@ -89,7 +154,7 @@ class ShortestPaths {
                 continue;
             }
             for (const auto &[v, w] : adj[u]) {
-                const ll cost = w + (usePotentials ? potential[u] - potential[v] : 0);
+                const ll cost = w + (usePotentials ? p[u] - p[v] : 0);
                 const ll nd = d + cost;
                 if (nd < dist[v]) {
                     dist[v] = nd;
@@ -102,8 +167,8 @@ class ShortestPaths {
 
   public:
     explicit ShortestPaths(const std::vector<std::vector<edge>> &graph)
-        : adj(graph), n(graph.size()), dist(n), prev(n), potential(n),
-          usePotentials(false) {}
+        : adj(graph), n(graph.size()), dist(n), prev(n), p(n), usePotentials(false),
+          neg(n, 0) {}
 
     /**
      * Single-source shortest path.
@@ -122,17 +187,26 @@ class ShortestPaths {
      *
      * Preconditions:
      * - Graph may contain negative weights
-     * - No negative cycles
+     * - Negative cycles are marked as -INF
      */
     std::vector<std::vector<ll>> johnson() {
-        computePotentials();
+        SPFA();
+        // BF();
         usePotentials = true;
         std::vector<std::vector<ll>> result(n, std::vector<ll>(n));
         for (ul s = 0; s < n; s++) {
+            if (neg[s]) {
+                std::fill(result[s].begin(), result[s].end(), -INF);
+                continue;
+            }
             dijkstraInternal(s);
             for (ul v = 0; v < n; v++) {
-                if (dist[v] != INF) {
-                    result[s][v] = dist[v] + potential[v] - potential[s];
+                if (neg[v]) {
+                    result[s][v] = -INF;
+                } else if (dist[v] != INF) {
+                    result[s][v] = dist[v] + p[v] - p[s];
+                } else {
+                    result[s][v] = INF;
                 }
             }
         }
