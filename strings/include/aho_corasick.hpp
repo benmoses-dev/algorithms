@@ -55,7 +55,6 @@ class AhoCorasick {
         std::unordered_map<char, std::unique_ptr<Node>> children;
         Node *fail;
         Node *output;
-        // Pattern IDs that end at this node (can have multiple due to duplicates)
         std::vector<std::size_t> patternIds;
         Node() : fail(nullptr), output(nullptr) {}
     };
@@ -83,11 +82,10 @@ class AhoCorasick {
      *
      * Sets f to the node representing c in the failure function, if it exists.
      */
-    void failAndFind(Node *&f, const char c) const {
+    void nextState(Node *&f, const char c) const {
         while (f != root.get() && !f->children.count(c)) {
             f = f->fail;
         }
-        // Try to extend the match
         const auto it = f->children.find(c);
         if (it != f->children.end()) {
             f = it->second.get();
@@ -156,7 +154,9 @@ class AhoCorasick {
                 Node *child = childNode.get();
                 q.push(child);
                 Node *f = at->fail;
-                failAndFind(f, c);
+                while (f != root.get() && !f->children.count(c)) {
+                    f = f->fail;
+                }
                 const auto it = f->children.find(c);
                 if (it != f->children.end() && it->second.get() != child) {
                     child->fail = it->second.get();
@@ -196,13 +196,12 @@ class AhoCorasick {
         Node *at = root.get();
         for (std::size_t i = 0; i < normalisedText.length(); i++) {
             const char c = normalisedText[i];
-            failAndFind(at, c);
+            nextState(at, c);
             Node *found = at;
             while (found != root.get()) {
                 for (const std::size_t patternId : found->patternIds) {
                     results.emplace_back(patternId, i);
                 }
-                // Follow output link to find patterns that are suffixes
                 if (found->output == root.get()) {
                     break;
                 }
@@ -246,7 +245,7 @@ class AhoCorasick {
         Node *at = root.get();
         for (std::size_t i = 0; i < normalisedText.length(); i++) {
             const char c = normalisedText[i];
-            failAndFind(at, c);
+            nextState(at, c);
             Node *found = at;
             while (found != root.get()) {
                 if (!found->patternIds.empty()) {
@@ -277,14 +276,14 @@ class AhoCorasick {
         Node *at = root.get();
         for (std::size_t i = 0; i < normalisedText.length(); i++) {
             const char c = normalisedText[i];
-            failAndFind(at, c);
-            Node *at = at;
-            while (at != root.get()) {
-                totalMatches += at->patternIds.size();
-                if (at->output == root.get()) {
+            nextState(at, c);
+            Node *found = at;
+            while (found != root.get()) {
+                totalMatches += found->patternIds.size();
+                if (found->output == root.get()) {
                     break;
                 }
-                at = at->output;
+                found = found->output;
             }
         }
         return totalMatches;
@@ -305,7 +304,7 @@ class AhoCorasick {
         Node *at = root.get();
         for (std::size_t i = 0; i < normalisedText.length(); i++) {
             const char c = normalisedText[i];
-            failAndFind(at, c);
+            nextState(at, c);
             Node *found = at;
             while (found != root.get()) {
                 if (!found->patternIds.empty()) {
@@ -342,7 +341,7 @@ class AhoCorasick {
         std::vector<MatchSpan> spans;
         for (const auto &match : matches) {
             const auto startPos = match.startPos(patterns[match.patternId].length());
-            spans.emplace_back(startPos, match.endPos, match.patternId);
+            spans.emplace_back(match.patternId, startPos, match.endPos);
         }
         std::sort(spans.begin(), spans.end());
         std::string result;
@@ -378,7 +377,7 @@ class AhoCorasick {
         Node *at = root.get();
         for (std::size_t i = 0; i < normalisedText.length(); i++) {
             const char c = normalisedText[i];
-            failAndFind(at, c);
+            nextState(at, c);
             Node *found = at;
             while (found != root.get()) {
                 for (const std::size_t patternId : found->patternIds) {
@@ -419,7 +418,7 @@ class AhoCorasick {
         end = std::min(end, normalisedText.length());
         for (std::size_t i = start; i < end; i++) {
             const char c = normalisedText[i];
-            failAndFind(at, c);
+            nextState(at, c);
             Node *found = at;
             while (found != root.get()) {
                 for (const std::size_t patternId : found->patternIds) {
@@ -459,7 +458,7 @@ class AhoCorasick {
         Node *at = root.get();
         for (std::size_t i = 0; i < normalisedText.length(); i++) {
             const char c = normalisedText[i];
-            failAndFind(at, c);
+            nextState(at, c);
             Node *found = at;
             while (found != root.get()) {
                 for (const std::size_t patternId : found->patternIds) {
