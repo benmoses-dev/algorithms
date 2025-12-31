@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <vector>
@@ -39,6 +40,64 @@ inline ld regularArea(const std::size_t n, const std::size_t l) {
         return 0.0;
     }
     return (n * l * l) / (4.0 * tanl(M_PI / static_cast<ld>(n)));
+}
+
+/**
+ * Cross product of vectors (OA x OB)
+ * Positive => O->A->B makes a counter-clockwise turn
+ * Negative => clockwise turn
+ * Zero     => collinear
+ */
+inline std::int64_t cross(const Point &O, const Point &A, const Point &B) {
+    return (A.first - O.first) * (B.second - O.second) -
+           (A.second - O.second) * (B.first - O.first);
+}
+
+/**
+ * Compute the convex hull of a set of points using a monotonic chain.
+ *
+ * Properties:
+ *  - Time complexity: O(n log n)
+ *  - Uses only integer arithmetic
+ *  - Returns hull vertices in counter-clockwise order
+ *  - Does NOT repeat the first point at the end
+ *
+ * Collinearity handling:
+ *  - Points lying strictly inside edges are removed
+ *  - Only extreme endpoints of collinear edges remain
+ */
+inline Polygon convexHull(Polygon points) {
+    const std::size_t n = points.size();
+    if (n <= 3) {
+        return points;
+    }
+    std::sort(points.begin(), points.end());
+    Polygon hull;
+    hull.reserve(n * 2);
+    for (const Point &p : points) {
+        while (hull.size() >= 2) {
+            const std::size_t m = hull.size();
+            if (cross(hull[m - 2], hull[m - 1], p) > 0) {
+                break;
+            }
+            hull.pop_back();
+        }
+        hull.emplace_back(p);
+    }
+    const std::size_t lowerSize = hull.size();
+    for (std::size_t i = n - 1; i > 0; i--) {
+        const Point &p = points[i - 1];
+        while (hull.size() > lowerSize) {
+            const std::size_t m = hull.size();
+            if (cross(hull[m - 2], hull[m - 1], p) > 0) {
+                break;
+            }
+            hull.pop_back();
+        }
+        hull.emplace_back(p);
+    }
+    hull.pop_back();
+    return hull;
 }
 
 } // namespace algo::geometry
