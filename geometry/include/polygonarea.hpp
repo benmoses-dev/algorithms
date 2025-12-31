@@ -67,11 +67,12 @@ inline std::int64_t cross(const Point &O, const Point &A, const Point &B) {
  *  - Only extreme endpoints of collinear edges remain
  */
 inline Polygon convexHull(Polygon points) {
+    std::sort(points.begin(), points.end());
+    points.erase(std::unique(points.begin(), points.end()), points.end());
     const std::size_t n = points.size();
-    if (n <= 3) {
+    if (n <= 2) {
         return points;
     }
-    std::sort(points.begin(), points.end());
     Polygon hull;
     hull.reserve(n * 2);
     for (const Point &p : points) {
