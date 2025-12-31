@@ -231,6 +231,9 @@ class DFSDriver {
      * If the graph has cycles, use either Dijkstra, if the weights cannot be negative, or
      * use Bellman-Ford or SPFA otherwise.
      *
+     *  * For longest path, see the BFS header (implementation will be identical whether
+     * topological order is generated using Kahn's BFS or DFS).
+     *
      * @param adj Weighted adjacency list: adj[u] = [(v1, w1), (v2, w2), ...]
      * @param source Starting vertex
      * @param res DFSResult containing topoOrder (from runDFS with isDirected=true)

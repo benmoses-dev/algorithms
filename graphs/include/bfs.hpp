@@ -1,9 +1,12 @@
 #pragma once
 
 #include <queue>
+#include <stdexcept>
 #include <vector>
 
 namespace algo::graph {
+
+using ll = long long;
 
 /**
  * Generic BFS algorithm.
@@ -135,4 +138,65 @@ gridBFS(const std::vector<std::vector<int>> &grid) {
     return prev;
 }
 
-} // namespace algo::bfs
+/**
+ * Kahn's algorithm for topological sort in a DAG.
+ * This is an alternative to using DFS, and it can be used to compute build dependencies
+ * or path lengths.
+ */
+inline std::vector<std::size_t>
+kahn(const std::vector<std::vector<std::pair<std::size_t, ll>>> &adj) {
+    const std::size_t n = adj.size();
+    std::vector<std::size_t> indeg(n, 0);
+    for (std::size_t u = 0; u < n; u++) {
+        for (const auto &[v, w] : adj[u]) {
+            indeg[v]++;
+        }
+    }
+    // Use a priority queue here to force ordering if necessary.
+    std::queue<std::size_t> q;
+    for (std::size_t u = 0; u < n; u++) {
+        if (indeg[u] == 0) {
+            q.push(u);
+        }
+    }
+    std::vector<std::size_t> topo;
+    while (!q.empty()) {
+        const std::size_t u = q.front();
+        q.pop();
+        topo.emplace_back(u);
+        for (const auto &[v, w] : adj[u]) {
+            indeg[v]--;
+            if (indeg[v] == 0) {
+                q.push(v);
+            }
+        }
+    }
+    if (topo.size() != n) {
+        throw std::runtime_error("Graph is not a DAG");
+    }
+    return topo;
+}
+
+/**
+ * Find the weighted longest path in a DAG using dynamic programming and BFS.
+ * This assumes an empty path is allowed and any start node is allowed. Otherwise,
+ * initialise dp to -LINF and set dp[source] = 0.
+ *
+ * For shortest path, see the DFS header (implementation will be identical whether
+ * topological order is generated using Kahn's BFS or DFS).
+ */
+inline ll longestPath(const std::vector<std::vector<std::pair<std::size_t, ll>>> &adj,
+                      const std::vector<std::size_t> &topo) {
+    const std::size_t n = adj.size();
+    std::vector<ll> dp(n, 0);
+    ll maxLen = 0;
+    for (const std::size_t u : topo) {
+        for (const auto &[v, w] : adj[u]) {
+            dp[v] = std::max(dp[v], dp[u] + w);
+            maxLen = std::max(dp[v], maxLen);
+        }
+    }
+    return maxLen;
+}
+
+} // namespace algo::graph
