@@ -45,14 +45,14 @@ class SuffixArray {
         std::vector<std::size_t> temp(n);
         for (std::size_t i = 0; i < n; i++) {
             sa[i] = i;
-            rank[i] = text[i];
+            rank[i] = static_cast<unsigned char>(text[i]);
         }
         for (std::size_t k = 1; k < n; k <<= 1) {
             const auto cmp = [&](std::size_t i, std::size_t j) {
                 if (rank[i] != rank[j]) {
                     return rank[i] < rank[j];
                 }
-                i += k;
+                i += k; // Add cyclic shift (% n) to both of these for BWT
                 j += k;
                 const std::size_t ri = (i < n) ? rank[i] : 0;
                 const std::size_t rj = (j < n) ? rank[j] : 0;
@@ -323,6 +323,7 @@ class SuffixArray {
 
     /**
      * Burrows-Wheeler transform.
+     * Ensure the SA has a cyclic adjustment in the comparitor!
      *
      * @return Pair of (BWT string, original_pos)
      */
