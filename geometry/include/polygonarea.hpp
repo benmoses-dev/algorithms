@@ -61,10 +61,6 @@ inline std::int64_t cross(const Point &O, const Point &A, const Point &B) {
  *  - Uses only integer arithmetic
  *  - Returns hull vertices in counter-clockwise order
  *  - Does NOT repeat the first point at the end
- *
- * Collinearity handling:
- *  - Points lying strictly inside edges are removed
- *  - Only extreme endpoints of collinear edges remain
  */
 inline Polygon convexHull(Polygon points) {
     std::sort(points.begin(), points.end());
@@ -78,7 +74,13 @@ inline Polygon convexHull(Polygon points) {
     for (const Point &p : points) {
         while (hull.size() >= 2) {
             const std::size_t m = hull.size();
-            if (cross(hull[m - 2], hull[m - 1], p) > 0) {
+            /**
+             * This keeps collinear points along the same edge, adding them to the hull in
+             * lexicographical order. To remove these points and only keep the very first
+             * and very last collinear point for each collinear edge chain, change this to
+             * > 0.
+             */
+            if (cross(hull[m - 2], hull[m - 1], p) >= 0) {
                 break;
             }
             hull.pop_back();
@@ -90,7 +92,7 @@ inline Polygon convexHull(Polygon points) {
         const Point &p = points[i - 1];
         while (hull.size() > lowerSize) {
             const std::size_t m = hull.size();
-            if (cross(hull[m - 2], hull[m - 1], p) > 0) {
+            if (cross(hull[m - 2], hull[m - 1], p) >= 0) {
                 break;
             }
             hull.pop_back();
