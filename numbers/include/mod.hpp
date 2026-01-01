@@ -423,6 +423,7 @@ class NTT {
          * Move the product, fractions, and inverses out of the CRT function.
          * Then just pass into the CRT function in the loop.
          */
+        // -- Precompute (M, modFractions, invs) here. --
         // std::vector<__int128> FC(N, 0);
         // for (size_t i = 0; i < N; i++) {
         //     std::vector<ll> remainders = {FC1[i], FC2[i], FC3[i]};
