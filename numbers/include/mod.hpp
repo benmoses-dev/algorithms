@@ -8,6 +8,7 @@ namespace algo::numbers {
 using ll = long long;
 using u32 = uint32_t;
 using i32 = int32_t;
+using Matrix = std::vector<std::vector<ll>>;
 
 /**
  * Helper function for normalising inputs mod m.
@@ -29,6 +30,24 @@ inline ll modMul(const ll a, const ll b, const ll m) {
     return ((__int128)a * b) % m; // __int128 is not necessary if inputs <= int32
 }
 
+inline ll modAdd(const ll a, const ll b, const ll m) {
+    checkMod(m);
+    ll res = a + b;
+    if (res >= m) {
+        res -= m;
+    }
+    return res;
+}
+
+inline ll modSub(const ll a, const ll b, const ll m) {
+    checkMod(m);
+    ll res = a - b;
+    if (res < 0) {
+        res += m;
+    }
+    return res;
+}
+
 /**
  * EEA to find greatest common divisor and Bezout coefficients.
  * gcd(a, b) = gcd(b, a % b)
@@ -40,10 +59,8 @@ inline ll extendedGCD(const ll a, const ll b, ll &x, ll &y) {
         y = 0;
         return a;
     }
-
     ll x1, y1;
     const ll gcd = extendedGCD(b, a % b, x1, y1);
-
     /**
      * gcd(b, a % b) = (b * x) + ((a % b) * y) = gcd(a, b)
      * a % b = a - (a / b) * b
@@ -114,24 +131,6 @@ inline ll modDivide(const ll numerator, const ll denominator, const ll m,
                     const bool isPrime = false) {
     const ll invB = modInv(denominator, m, isPrime);
     return modMul(numerator, invB, m);
-}
-
-inline ll modAdd(const ll a, const ll b, const ll m) {
-    checkMod(m);
-    ll res = a + b;
-    if (res >= m) {
-        res -= m;
-    }
-    return res;
-}
-
-inline ll modSub(const ll a, const ll b, const ll m) {
-    checkMod(m);
-    ll res = a - b;
-    if (res < 0) {
-        res += m;
-    }
-    return res;
 }
 
 /**
@@ -284,6 +283,39 @@ class NCRMod {
         return res;
     }
 };
+
+inline Matrix matMul(const Matrix &A, const Matrix &B, const ll mod) {
+    std::size_t n = A.size();
+    Matrix C(n, std::vector<ll>(n, 0));
+    for (std::size_t i = 0; i < n; i++) {
+        for (std::size_t j = 0; j < n; j++) {
+            for (std::size_t k = 0; k < n; k++) {
+                if (A[i][k] == 0 || B[k][j] == 0) {
+                    continue;
+                }
+                const ll mul = modMul(A[i][k], B[k][j], mod);
+                C[i][j] = modAdd(C[i][j], mul, mod);
+            }
+        }
+    }
+    return C;
+}
+
+inline Matrix matPow(Matrix b, ll exp, const ll mod) {
+    const std::size_t n = b.size();
+    Matrix r(n, std::vector<ll>(n, 0));
+    for (std::size_t i = 0; i < n; i++) {
+        r[i][i] = 1;
+    }
+    while (exp > 0) {
+        if (exp & 1) {
+            r = matMul(r, b, mod);
+        }
+        b = matMul(b, b, mod);
+        exp >>= 1;
+    }
+    return r;
+}
 
 /**
  * Calculate the value that results in the remainders a[i] when divided by m[i]
