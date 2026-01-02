@@ -285,14 +285,17 @@ class NCRMod {
 };
 
 inline Matrix matMul(const Matrix &A, const Matrix &B, const ll mod) {
-    std::size_t n = A.size();
-    Matrix C(n, std::vector<ll>(n, 0));
-    for (std::size_t i = 0; i < n; i++) {
-        for (std::size_t j = 0; j < n; j++) {
-            for (std::size_t k = 0; k < n; k++) {
-                if (A[i][k] == 0 || B[k][j] == 0) {
-                    continue;
-                }
+    const std::size_t aH = A.size();
+    const std::size_t aW = A[0].size();
+    const std::size_t bH = B.size();
+    const std::size_t bW = B[0].size();
+    if (aW != bH) {
+        throw std::runtime_error("Matrices are the incorrect size for multiplication");
+    }
+    Matrix C(aH, std::vector<ll>(bW, 0));
+    for (std::size_t i = 0; i < aH; i++) {
+        for (std::size_t j = 0; j < bW; j++) {
+            for (std::size_t k = 0; k < aW; k++) {
                 const ll mul = modMul(A[i][k], B[k][j], mod);
                 C[i][j] = modAdd(C[i][j], mul, mod);
             }
