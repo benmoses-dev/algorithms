@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace algo::strings {
+namespace algo::dp {
 
 /**
  * Longest Common Subsequence (LCS): Find longest sequence that appears

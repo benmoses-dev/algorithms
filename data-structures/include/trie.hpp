@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace algo::strings {
+namespace algo::ds {
 
 struct TrieNode {
     std::unordered_map<char, std::unique_ptr<TrieNode>> children;
