@@ -103,4 +103,27 @@ inline Polygon convexHull(Polygon points) {
     return hull;
 }
 
+/**
+ * Returns the area of a triangle given the vertices.
+ */
+inline ld triArea(const Polygon &triangle) {
+    const auto &[x1, y1] = triangle[0];
+    const auto &[x2, y2] = triangle[1];
+    const auto &[x3, y3] = triangle[2];
+    return fabsl(((ld)x1 * (y2 - y3)) + ((ld)x2 * (y3 - y1)) + ((ld)x3 * (y1 - y2))) /
+           2.0;
+};
+
+/**
+ * Returns the area of a cyclic quadrilateral given the lengths of the sides
+ */
+inline double cyclicQuad(const double a, const double b, const double c, const double d) {
+    if (a <= 0 || b <= 0 || c <= 0 || d <= 0) {
+        return 0.0;
+    }
+    const double s = (a + b + c + d) / 2.0;
+    const double squared = (s - a) * (s - b) * (s - c) * (s - d);
+    return squared > 0.0 ? std::sqrt(squared) : 0.0;
+}
+
 } // namespace algo::geometry
