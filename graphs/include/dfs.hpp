@@ -41,6 +41,7 @@ struct DFSResult {
     std::vector<ll> sccIndex;     // Component ID for each node in Tarjan's.
     std::vector<ul> postOrder;    // Track post order of traversal.
     std::vector<ul> topoOrder;    // Only useful in a DAG.
+    std::vector<uint8_t> visited; // Visited nodes.
 };
 
 class DFSDriver {
@@ -49,13 +50,13 @@ class DFSDriver {
     ll currentComponent;
     ll currSCC;
 
-    void undirectedDfs(std::vector<std::vector<ul>> &adj, std::vector<uint8_t> &visited,
-                       DFSResult &res, ul u, ll p = -1) {
+    void undirectedDfs(std::vector<std::vector<ul>> &adj, DFSResult &res, ul u,
+                       ll p = -1) {
         /**
          * 0 = not visited
          * 1 = visiting
          */
-        visited[u] = 1;
+        res.visited[u] = 1;
 
         res.parent[u] = p;
         res.components[u] = currentComponent; // Flood fill all nodes in the same DFS.
@@ -68,8 +69,8 @@ class DFSDriver {
             if (p >= 0 && v == to_uint(p)) // Don't go back up the edge.
                 continue;
 
-            if (visited[v] == 0) {
-                undirectedDfs(adj, visited, res, v, to_int(u));
+            if (!res.visited[v]) {
+                undirectedDfs(adj, res, v, to_int(u));
 
                 // v has now been processed (and is a descendant) - use its low-link
                 // value.
@@ -118,14 +119,13 @@ class DFSDriver {
         res.postOrder.push_back(u);
     }
 
-    void directedDfs(std::vector<std::vector<ul>> &adj, std::vector<uint8_t> &visited,
-                     DFSResult &res, ul u, ll p = -1) {
+    void directedDfs(std::vector<std::vector<ul>> &adj, DFSResult &res, ul u, ll p = -1) {
         /**
          * 0 = not visited
          * 1 = visiting
          * We can track cycles using the stack.
          */
-        visited[u] = 1;
+        res.visited[u] = 1;
 
         res.parent[u] = p;
         res.components[u] = currentComponent; // Track weakly connected components.
@@ -137,9 +137,9 @@ class DFSDriver {
         res.onStack[u] = 1;
 
         for (ul v : adj[u]) {
-            if (visited[v] == 0) {
+            if (!res.visited[v]) {
                 // Recurse and then update the low-link.
-                directedDfs(adj, visited, res, v, to_int(u));
+                directedDfs(adj, res, v, to_int(u));
                 res.low[u] = std::min(res.low[u], res.low[v]);
             } else if (res.onStack[v] == 1) { // Currently being processed.
                 res.low[u] = std::min(res.low[u], res.entry[v]);
@@ -188,14 +188,14 @@ class DFSDriver {
         res.low.resize(n, -1);
         res.hasCycle = false;
         res.onStack.assign(n, 0);
-        std::vector<uint8_t> visited(n, 0);
+        res.visited.assign(n, 0);
 
         for (ul u = 0; u < n; u++) {
-            if (visited[u] == 0) {
+            if (!res.visited[u]) {
                 if (isDirected) {
-                    directedDfs(adj, visited, res, u, -1);
+                    directedDfs(adj, res, u, -1);
                 } else {
-                    undirectedDfs(adj, visited, res, u, -1);
+                    undirectedDfs(adj, res, u, -1);
                 }
                 currentComponent++;
             }
